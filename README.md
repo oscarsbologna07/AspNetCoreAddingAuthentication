@@ -35,41 +35,63 @@ If you would rather use something other than Visual Studio
 __Note:__ this isn't the only way to accomplish this, however; this is what the project's tests are expecting. Implimenting this in a different way will likely result in being marked as incomplete / incorrect.
 
 - [ ] Adding Authentication to our existing ASP.NET Core App
+	- [ ] Change `ApplicationDbContext` to use `IdentityDbContext`
+		- [ ] Replace `AppicationDbContext`'s inherritance of `DbContext` to `IdentityDbContext`
 	- [ ] Add Support for Authentication
-		- [ ] Add AddIdentity to services Configuration
-		- [ ] Add UseAuthentication to app Configure
-	- [ ] 
-
-	Change Existing
-
-	Refactor / Reconfigure / Change
-	- Change ApplicationDbContext Inherritance to IdentityDbContext instead of DbContext
-	- Change _Layout to have Create / Login links if you're not logged in (forgot password?)
-	- Change _Layout to have Logout link if you're logged in (change password?)
-	- Change WishList Actions to require authentication
-	- Change WishList Index Action to show only Items with logged in UserId
-	- Change Item model to contain userId
-
-	New Stuff
-
-	Views to be created
-	- Register
-	- Login
-	- Logout
-	- Forgot password?
-	- Change password?
-
-	Controller to be created
-	- Register Get
-	- Register Post
-	- Login Get
-	- Login Post
-	- Logout Get
-	- Logout Post
-	- Forgot Password Get?
-	- Forgot Password Post?
-	- Change Password Get?
-	- Change Password Post?
+		- [ ] In the `Configuration` call `AddIdentity` on `services`.
+		- [ ] In the `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
+	- [ ] Create `ApplicationUser` Model
+		- [ ] Create `ApplicationUser` Model
+			- Inherrits `IdentityUser` class
+	- [ ] Create Register Functionality
+		- [ ] Create Register Model
+			- Email / UserName?
+			- Password
+		- [ ] Create Register View
+			- Input for UserName / Email
+			- Input for Password
+			- Input for Confirm Password?
+			- submit button
+		- [ ] Create Register Get Action
+			- Returns Register View
+		- [ ] Create Register Post Action
+			- Creates User Action
+			- Redirects to Index Action
+	- [ ] Create Login Functionality
+		- [ ] Create Login Model
+			- Email / UserName?
+			- Password
+		- [ ] Create Login Section on Layout
+			- Input for Email / UserName
+			- Input for Password
+			- submit button
+		- [ ] Create Login View?
+			- Same as Login Section, just in it's own view
+		- [ ] Create Login Post Action
+			- Authenticates User
+			- Redirects back to whatever page accessed it
+	- [ ] Create Logout Functionality
+		- [ ] Create Logout Model
+			- Email / UserName
+		- [ ] Create Logout Section on Layout
+			- submit button
+		- [ ] Create Logout Post Action
+			- Logs out user
+			- Redirects back to `Index` Action
+	- [ ] Set Actions to `Authentication` or `AllowAnonymous`
+		- [ ] Set to `Authenticate`
+			- ItemController
+			- AccountController
+		- [ ] Set to `AllowAnonymous`
+			- AccountController.Register (both actions)
+	- [ ] Update Item Model to Include UserId
+		- [ ] Add UserId to Item model
+			- UserId should have Required attribute
+	- [ ] Update ItemController Actions to consider UserId
+		- [ ] Update Index to show only User's Items
+			- Change the `_context.Items.ToList();` to only get the user's items.
+		- [ ] Update Create to populate the userId
+			- Add a line before saving the Item to set the UserId to the logged in user's Id
 	
 
 ## What Now?
