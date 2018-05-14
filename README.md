@@ -34,24 +34,41 @@ If you would rather use something other than Visual Studio
 
 __Note:__ this isn't the only way to accomplish this, however; this is what the project's tests are expecting. Implimenting this in a different way will likely result in being marked as incomplete / incorrect.
 
-- [ ] Adding Authentication to our existing ASP.NET Core App
+- [ ] Adding Authentication to our existing ASP.NET Core wishlist app
 	- [ ] Change `ApplicationDbContext` to use `IdentityDbContext`
 		- [ ] Replace `AppicationDbContext`'s inherritance of `DbContext` to `IdentityDbContext`
-	- [ ] Add Support for Authentication
+	- [ ] Add Support for `Authentication`
 		- [ ] In the `Configuration` call `AddIdentity` on `services`.
 		- [ ] In the `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
 	- [ ] Create `ApplicationUser` Model
-		- [ ] Create `ApplicationUser` Model
-			- Inherrits `IdentityUser` class
+		- [ ] Inside the `Models` folder create a new model `ApplicationUser`
+			- `ApplicationUser` should inherit `IdentityUser` class
 	- [ ] Create Register Functionality
 		- [ ] Create Register Model
-			- Email / UserName?
-			- Password
-		- [ ] Create Register View
-			- Input for UserName / Email
-			- Input for Password
-			- Input for Confirm Password?
-			- submit button
+			- Inside the `Models/AccountViewModels` folder create a new model `RegisterViewModel` (You will need to create the AccountViewModels folder)
+			- Create a `String` Property Email
+				- Email should have the Required attribute
+				- Email should have the EmailAddress attribute
+			- Create a String Property `Password`
+				- `Password` should have the `Required` attribute
+				- `Password` should have the `DataType.Password` attribute
+				- `Password` should have a `StringLength` attribute of 100 with a `MinLength` of 8 characters
+			- Create a `String` Property `ConfirmPassword`
+				- `ConfirmPassword` should have the `Required` attribute
+				- `ConfirmPassword` should have the `DataType.Password` attribute
+				- `ConfirmPassword` should have the `Compare` attribute with "Password"
+		- [ ] Create the Register View
+			- Inside the `Views/Account` folder add a new view `Register` (you will need to create the `Account` folder)
+			- `Register` should have a model of `RegisterViewModel`
+			- Should contain an `h3` tag with the text `Register New User`
+			- Should contain a `form` tag with the attribute `asp-action` with a value of `"Register"`
+			- The `form` should contain an `input` tag with an attribute `asp-for` with a value of `"Email"`
+			- The `form` should contain a `span` tag with an attribute `asp-validation-for` with a value of `"Email"`
+			- The `form` should contain an `input` tag with an attribute `asp-for` with a value of `"Password"`
+			- The `form` should contain a `span` tag with an attribute `asp-validation-for` with a value of `"Password"`
+			- The `form` should contain an `input` tag with an attribute `asp-for` with a value of `"ConfirmPassword"`
+			- The `form` should contain a `span` tag with an attribute `asp-validation-for` with a value of `"ConfirmPassword"`
+			- The `form` should contain a `button` tag with an attribute `type` with a value of `"submit"` and containing the text `Register`
 		- [ ] Create Register Get Action
 			- Returns Register View
 		- [ ] Create Register Post Action
@@ -93,7 +110,6 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 		- [ ] Update Create to populate the userId
 			- Add a line before saving the Item to set the UserId to the logged in user's Id
 	
-
 ## What Now?
 
 You've compeleted the tasks of this project, if you want to continue working on this project there will be additional projects added to the ASP.NET Core path that continue where this project left off adding more advanced views and models, as well as providing and consuming data as a webservice.
