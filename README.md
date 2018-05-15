@@ -80,11 +80,16 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- The `form` should contain an `input` tag with an attribute `asp-for` with a value of `"ConfirmPassword"`
 			- The `form` should contain a `span` tag with an attribute `asp-validation-for` with a value of `"ConfirmPassword"`
 			- The `form` should contain a `button` tag with an attribute `type` with a value of `"submit"` and containing the text `Register`
-		- [ ] Create Register Action
-			- Returns Register View
-		- [ ] Create Register Post Action
-			- Creates User Action
-			- Redirects to Index Action
+		- [ ] Create an HttpGet Action Register in the AccountController
+			- This action should have the `HttpGet` attribute
+			- This action should have no parameters
+			- This action should explicitly return the `Register` view.
+		- [ ] Create an HttpPost Action Register in the AccountController
+			- This action should have the `HttpPost` attribute
+			- This action should accept a parameter of type `RegisterViewModel`
+			- This action should check if the `ModelState` is valid
+				- If so create the new user the redirect to action to the `Home.Index` action
+				- If not return the `Register` view with the model provided parameter as it's model
 	- [ ] Create Login Functionality
 		- [ ] Create Login Model
 			- Email / UserName?
