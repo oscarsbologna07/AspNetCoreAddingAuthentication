@@ -71,6 +71,17 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 		- [ ] Create the Register View
 			- Inside the `Views/Account` folder add a new view `Register` (you will need to create the `Account` folder)
 			- `Register` should have a model of `RegisterViewModel`
+			- Add the following HTML to the view (we're providing this to save you from needing to type it all yourself)
+				```<h3>Register New User</h3>
+				<form>
+					<input />
+					<span></span>
+					<input />
+					<span></span>
+					<input />
+					<span></span>
+					<button type="sumbit">Register User</button>
+				</form>```
 			- Should contain an `h3` tag with the text `Register New User`
 			- Should contain a `form` tag with the attribute `asp-action` with a value of `"Register"`
 			- The `form` should contain an `input` tag with an attribute `asp-for` with a value of `"Email"`
