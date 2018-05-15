@@ -35,14 +35,25 @@ If you would rather use something other than Visual Studio
 __Note:__ this isn't the only way to accomplish this, however; this is what the project's tests are expecting. Implimenting this in a different way will likely result in being marked as incomplete / incorrect.
 
 - [ ] Adding Authentication to our existing ASP.NET Core wishlist app
-	- [ ] Change `ApplicationDbContext` to use `IdentityDbContext`
-		- [ ] Replace `AppicationDbContext`'s inherritance of `DbContext` to `IdentityDbContext`
-	- [ ] Add Support for `Authentication`
-		- [ ] In the `Configuration` call `AddIdentity` on `services`.
-		- [ ] In the `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
 	- [ ] Create `ApplicationUser` Model
 		- [ ] Inside the `Models` folder create a new model `ApplicationUser`
 			- `ApplicationUser` should inherit `IdentityUser` class
+	- [ ] Change `ApplicationDbContext` to use `IdentityDbContext`
+		- [ ] Replace `AppicationDbContext`'s inherritance of `DbContext` to `IdentityDbContext<ApplicationUser>`
+	- [ ] Add Support for `Authentication`
+		- [ ] In the `Configuration` call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`
+		- [ ] In the `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
+	- [ ] Create `AccountController`
+		- [ ] Create new controller `AccountController` in the `Controllers` folder
+			- This should inherit the `Controller` class (you will need a using statement for `Microsoft.AspNetCore.Mvc`)
+		- [ ] Create private fields
+			- This should have a private readonly field of type `UserManager<ApplicationUser>` named `_userManager`
+			- This should have a private readonly field of type `SignInManager<ApplicationUser>` named `_signInManager`
+		- [ ] Create `AccountController` Constructor
+			- This constructor should accept two parameters, the first of type `UserManager<ApplicationUser>`, the second of type `signInManager<ApplicationUser>`
+			- This constructor should set each of the private readonly properties using the parameter of the same type
+		- [ ] Add public property
+			- This should have a public property of type `string` named `ErrorMessage` (both the getter and setter should be public)
 	- [ ] Create Register Functionality
 		- [ ] Create Register Model
 			- Inside the `Models/AccountViewModels` folder create a new model `RegisterViewModel` (You will need to create the AccountViewModels folder)
@@ -69,7 +80,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- The `form` should contain an `input` tag with an attribute `asp-for` with a value of `"ConfirmPassword"`
 			- The `form` should contain a `span` tag with an attribute `asp-validation-for` with a value of `"ConfirmPassword"`
 			- The `form` should contain a `button` tag with an attribute `type` with a value of `"submit"` and containing the text `Register`
-		- [ ] Create Register Get Action
+		- [ ] Create Register Action
 			- Returns Register View
 		- [ ] Create Register Post Action
 			- Creates User Action
