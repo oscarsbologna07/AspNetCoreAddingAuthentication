@@ -84,15 +84,13 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 					<button type="sumbit">Register User</button>
 				</form>
 				```
-			- Should contain an `h3` tag with the text `Register New User`
-			- Should contain a `form` tag with the attribute `asp-action` with a value of `"Register"`
-			- The `form` should contain an `input` tag with an attribute `asp-for` with a value of `"Email"`
-			- The `form` should contain a `span` tag with an attribute `asp-validation-for` with a value of `"Email"`
-			- The `form` should contain an `input` tag with an attribute `asp-for` with a value of `"Password"`
-			- The `form` should contain a `span` tag with an attribute `asp-validation-for` with a value of `"Password"`
-			- The `form` should contain an `input` tag with an attribute `asp-for` with a value of `"ConfirmPassword"`
-			- The `form` should contain a `span` tag with an attribute `asp-validation-for` with a value of `"ConfirmPassword"`
-			- The `form` should contain a `button` tag with an attribute `type` with a value of `"submit"` and containing the text `Register`
+			- Add an attribute `asp-action` with a value of `"Register" to the `form` tag
+			- Add an attribute `asp-for` with a value of `"Email"` to the first `input` tag
+			- Add an attribute `asp-validation-for` with a value of `"Email"` to the first `span` tag
+			- Add an attribute `asp-for` with a value of `"Password"` to the second `input` tag
+			- Add an attribute `asp-validation-for` with a value of `"Password"` to the second `span` tag
+			- Add an attribute `asp-for` with a value of `"ConfirmPassword"` to the third `input` tag
+			- Add an attribute `asp-validation-for` with a value of `"ConfirmPassword"` to the third `span` tag
 		- [ ] Create an HttpGet Action Register in the AccountController
 			- This action should have the `HttpGet` attribute
 			- This action should have no parameters
@@ -105,14 +103,34 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				- If not return the `Register` view with the model provided parameter as it's model
 	- [ ] Create Login Functionality
 		- [ ] Create Login Model
-			- Email / UserName?
-			- Password
-		- [ ] Create Login Section on Layout
-			- Input for Email / UserName
-			- Input for Password
-			- submit button
-		- [ ] Create Login View?
-			- Same as Login Section, just in it's own view
+			- Create a `String` Property Email
+				- Email should have the Required attribute
+				- Email should have the EmailAddress attribute
+			- Create a String Property `Password`
+				- `Password` should have the `Required` attribute
+				- `Password` should have the `DataType.Password` attribute
+				- `Password` should have a `StringLength` attribute of 100 with a `MinLength` of 8 characters
+		- [ ] Create a Login View in the `Views/Account` Folder
+			- Add the following HTML to the `Login` view
+				```
+				@model WishList.Models.LoginViemModel
+				<h2>Log in</h2>
+				<form asp-action="Register" method="post">
+					<div>
+						<label asp-for="Email"></label>
+						<input asp-for="Email"/>
+						<span asp-validation-for="Email"></span>
+					</div>
+					<div>
+						<label asp-for="Password"></label>
+						<input asp-for="Password" />
+						<span asp-validation-for="Password"></span>
+					</div>
+					<div>
+						<button type="submit">Log in</button>
+					</div>
+				</form>
+				```
 		- [ ] Create Login Post Action
 			- Authenticates User
 			- Redirects back to whatever page accessed it
