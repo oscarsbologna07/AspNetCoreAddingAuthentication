@@ -45,6 +45,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 		- [ ] In the `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
 	- [ ] Create `AccountController`
 		- [ ] Create new controller `AccountController` in the `Controllers` folder
+			- The AccountController class should have the `authorize` attribute
 			- This should inherit the `Controller` class (you will need a using statement for `Microsoft.AspNetCore.Mvc`)
 		- [ ] Create private fields
 			- This should have a private readonly field of type `UserManager<ApplicationUser>` named `_userManager`
@@ -93,6 +94,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- Add an attribute `asp-validation-for` with a value of `"ConfirmPassword"` to the third `span` tag
 		- [ ] Create an HttpGet Action Register in the AccountController
 			- This action should have the `HttpGet` attribute
+			- This action should have the `AllowAnonymous` attribute
 			- This action should have no parameters
 			- This action should explicitly return the `Register` view.
 		- [ ] Create an HttpPost Action Register in the AccountController
