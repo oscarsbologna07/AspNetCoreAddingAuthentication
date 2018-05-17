@@ -140,26 +140,23 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- This action should use the `async` keyword
 			- This action should have a return type of `Task<IActionResult>`
 			- This action should accept a parameter of type `LoginViewModel`
-			- This should use the `SignInManager`'s `PasswordSignInAsync` method to attempt to login the user (Note: you will need to `await` or get the `Result` from async methods to see the results)
-				- If the result is `Succeeded` return a RedirectToAction to the `Wishlist.Index` action
+			- This should use `SignInManager`'s `PasswordSignInAsync` method to attempt to login the user (Note: you will need to `await` or get the `Result` from async methods to see the results)
+				- If the result is `Succeeded` return a `RedirectToAction` to the `Wishlist.Index` action
 				- Otherwise use `ModelState`'s `AddModelError` with a key of `string.Empty` and an `errorMessage` of "Invalid login attempt."
 	- [ ] Create Logout Functionality
-		- [ ] Create Logout Model
-			- Email / UserName
-		- [ ] Create Logout Section on Layout
-			- submit button
-		- [ ] Create Logout Post Action
-			- Logs out user
-			- Redirects back to `Index` Action
-	- [ ] Set Actions to `Authentication` or `AllowAnonymous`
-		- [ ] Set to `Authenticate`
-			- ItemController
-		- [ ] Set to `AllowAnonymous`
-			- AccountController.Register (both actions)
+		- [ ] Create an HttpPost Action Logout in the AcctionController
+			- This action should have the `HttpPost` attribute
+			- This action should have the `Authorize` attribute
+			- This action should have the `ValidateAntiForgeryToken` attribute
+			- This action should use the `async` keyword
+			- This action should have a return type of `Task<IActionResult>`
+			- This action should use `SignInManager`'s `SignOutAsync` method (Note: you will want to `await` this method to ensure the sign out completes)
+			- This should return a `RedirectToAction` to the `Home.Index` action
 	- [ ] Update Item Model to Include UserId
 		- [ ] Add UserId to Item model
 			- UserId should have Required attribute
 	- [ ] Update ItemController Actions to consider UserId
+		- [ ] Add the `Authorize` attribute to the `ItemController` class
 		- [ ] Update Index to show only User's Items
 			- Change the `_context.Items.ToList();` to only get the user's items.
 		- [ ] Update Create to populate the userId
