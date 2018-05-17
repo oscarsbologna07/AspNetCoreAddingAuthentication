@@ -154,7 +154,6 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 	- [ ] Set Actions to `Authentication` or `AllowAnonymous`
 		- [ ] Set to `Authenticate`
 			- ItemController
-			- AccountController
 		- [ ] Set to `AllowAnonymous`
 			- AccountController.Register (both actions)
 	- [ ] Update Item Model to Include UserId
