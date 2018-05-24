@@ -37,7 +37,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 - [ ] Adding Authentication to our existing ASP.NET Core wishlist app
 	- [ ] Create `ApplicationUser` Model
 		- [ ] Inside the `Models` folder create a new model `ApplicationUser`
-			- `ApplicationUser` should inherit `IdentityUser` class
+			- `ApplicationUser` should inherit `IdentityUser` class (you will need a `using` statement for `Microsoft.AspNetCore.Identity`)
 	- [ ] Change `ApplicationDbContext` to use `IdentityDbContext`
 		- [ ] Replace `AppicationDbContext`'s inherritance of `DbContext` to `IdentityDbContext<ApplicationUser>`
 	- [ ] Add Support for `Authentication`
@@ -46,7 +46,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 	- [ ] Create `AccountController`
 		- [ ] Create new controller `AccountController` in the `Controllers` folder
 			- The AccountController class should have the `authorize` attribute
-			- This should inherit the `Controller` class (you will need a using statement for `Microsoft.AspNetCore.Mvc`)
+			- This should inherit the `Controller` class (you will need a `using` statement for `Microsoft.AspNetCore.Mvc`)
 		- [ ] Create private fields
 			- This should have a private readonly field of type `UserManager<ApplicationUser>` named `_userManager`
 			- This should have a private readonly field of type `SignInManager<ApplicationUser>` named `_signInManager`
