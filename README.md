@@ -35,14 +35,12 @@ If you would rather use something other than Visual Studio
 __Note:__ this isn't the only way to accomplish this, however; this is what the project's tests are expecting. Implimenting this in a different way will likely result in being marked as incomplete / incorrect.
 
 - [ ] Adding Authentication to our existing ASP.NET Core wishlist app
-	- [ ] Create `ApplicationUser` Model
+	- [ ] Configure Authenetication
 		- [ ] Inside the `Models` folder create a new model `ApplicationUser`
 			- `ApplicationUser` should inherit `IdentityUser` class (you will need a `using` statement for `Microsoft.AspNetCore.Identity`)
-	- [ ] Change `ApplicationDbContext` to use `IdentityDbContext`
-		- [ ] Replace `AppicationDbContext`'s inherritance of `DbContext` to `IdentityDbContext<ApplicationUser>`
-	- [ ] Add Support for `Authentication`
-		- [ ] In the `Configuration` call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`
-		- [ ] In the `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
+		- [ ] Replace `AppicationDbContext`'s inheritance of `DbContext` to `IdentityDbContext<ApplicationUser>`
+		- [ ] In `StartUp.cs`'s `Configuration` method call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`
+		- [ ] In `StartUp.cs`'s `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
 	- [ ] Create `AccountController`
 		- [ ] Create new controller `AccountController` in the `Controllers` folder
 			- The AccountController class should have the `authorize` attribute

@@ -6,7 +6,7 @@ using Xunit;
 
 namespace WishListTests
 {
-    public class CreateApplicationUserTests
+    public class ConfigureAuthenticationTests
     {
         [Fact(DisplayName = "Create ApplicationUser Model @create-applicationuser-model")]
         public void CreateApplicationUserTest()
@@ -21,6 +21,19 @@ namespace WishListTests
 
             Assert.True(applicationUserModel != null, "`ApplicationUser.cs` was found but doesn't appear to contain a `public` class `ApplicationUser` in the `WishList.Models` namespace.");
             Assert.True(applicationUserModel.BaseType == typeof(IdentityUser), "`ApplicationUser` was found but does not appear to inherit the `IdentityUser` class.");
+        }
+
+        [Fact(DisplayName = "Update ApplicationDbContexts Inherittance @update-applicationdbcontexts-inherittance")]
+        public void UpdateApplicationDbContextInherritenceTest()
+        {
+            var applicationDbContext = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                                        from type in assembly.GetTypes()
+                                        where type.FullName == "WishList.Data.ApplicationDbContext"
+                                        select type).FirstOrDefault();
+
+            Assert.True(applicationDbContext != null, "A `public` class `ApplicationDbContext` was not found in the `WishList.Data` namespace, was it accidentally renamed or deleted?");
+            Assert.True(applicationDbContext.BaseType == typeof(IdentityDbContext), "`ApplicationDbContext` is not inheritting the `IdentityDbContext` class.");
+            // #todo verify IdentityDbContext<ApplicationUser> not just IdentityDbContext (this will probably require regex)
         }
     }
 }
