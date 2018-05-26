@@ -39,7 +39,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 		- [ ] Inside the `Models` folder create a new model `ApplicationUser`
 			- `ApplicationUser` should inherit `IdentityUser` class (you will need a `using` statement for `Microsoft.AspNetCore.Identity`)
 		- [ ] Replace `AppicationDbContext`'s inheritance of `DbContext` to `IdentityDbContext<ApplicationUser>`
-		- [ ] In `StartUp.cs`'s `Configuration` method call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`
+		- [ ] In `StartUp.cs`'s `ConfigureServices` method call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`
 		- [ ] In `StartUp.cs`'s `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
 	- [ ] Create `AccountController`
 		- [ ] Create new controller `AccountController` in the `Controllers` folder
