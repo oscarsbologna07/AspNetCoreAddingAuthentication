@@ -43,7 +43,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 		- [ ] In `StartUp.cs`'s `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
 	- [ ] Create `AccountController`
 		- [ ] Create new controller `AccountController` in the `Controllers` folder
-			- The AccountController class should have the `authorize` attribute
+			- The AccountController class should have the `authorize` attribute (you will need a `using` statement for `Microsoft.AspNetCore.Authorization`)
 			- This should inherit the `Controller` class (you will need a `using` statement for `Microsoft.AspNetCore.Mvc`)
 		- [ ] Create private fields
 			- This should have a private readonly field of type `UserManager<ApplicationUser>` named `_userManager`
@@ -51,8 +51,6 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 		- [ ] Create `AccountController` Constructor
 			- This constructor should accept two parameters, the first of type `UserManager<ApplicationUser>`, the second of type `signInManager<ApplicationUser>`
 			- This constructor should set each of the private readonly properties using the parameter of the same type
-		- [ ] Add public property
-			- This should have a public property of type `string` named `ErrorMessage` (both the getter and setter should be public)
 	- [ ] Create Register Functionality
 		- [ ] Create Register Model
 			- Inside the `Models/AccountViewModels` folder create a new model `RegisterViewModel` (You will need to create the AccountViewModels folder)
