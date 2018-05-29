@@ -62,7 +62,6 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				- `Password` should have the `DataType.Password` attribute
 				- `Password` should have a `StringLength` attribute of 100 with a `MinLength` of 8 characters
 			- Create a `String` Property `ConfirmPassword`
-				- `ConfirmPassword` should have the `Required` attribute
 				- `ConfirmPassword` should have the `DataType.Password` attribute
 				- `ConfirmPassword` should have the `Compare` attribute with "Password"
 		- [ ] Create the Register View
