@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace WishListTests
@@ -44,6 +45,47 @@ namespace WishListTests
             // need to verify datatype is set to password
             Assert.True(confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(CompareAttribute)) != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appeart to have a `Compare` attribute set to `Password`.");
             // need to verify compare is set to password
+        }
+
+        [Fact(DisplayName = "Create Register View @create-register-view")]
+        public void CreateRegisterViewTest()
+        {
+            var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Views" + Path.DirectorySeparatorChar + "Account" + Path.DirectorySeparatorChar + "Register.cshtml";
+            Assert.True(File.Exists(filePath), @"`Register.cshtml` was not found in the `Views\Account` folder.");
+
+            string file;
+            using (var streamReader = new StreamReader(filePath))
+            {
+                file = streamReader.ReadToEnd();
+            }
+
+            var pattern = @"</s*?form/s*.*?asp-action/s*?=/s*?""Register""/s*?.*?>";
+            var rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml`'s `form` tag didn't contain an attribute `asp-action` set to ""Register"".");
+
+            pattern = @"</s*?input/s*.*?asp-for/s*?=/s*?""Email""/s*?.*?[/]>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""Email"".");
+
+            pattern = @"</s*?span/s*.*?asp-validation-for/s*?=/s*?""Email""/s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""Email"".");
+
+            pattern = @"</s*?input/s*.*?asp-for/s*?=/s*?""Password""/s*?.*?[/]>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""Password"".");
+
+            pattern = @"</s*?span/s*.*?asp-validation-for/s*?=/s*?""Password""/s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""Password"".");
+
+            pattern = @"</s*?input/s*.*?asp-for/s*?=/s*?""ConfirmPassword""/s*?.*?[/]>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""ConfirmPassword"".");
+
+            pattern = @"</s*?span/s*.*?asp-validation-for/s*?=/s*?""ConfirmPassword""/s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""ConfirmPassword"".");
         }
     }
 }
