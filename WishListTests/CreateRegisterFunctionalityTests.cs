@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
 namespace WishListTests
@@ -86,6 +85,33 @@ namespace WishListTests
             pattern = @"</s*?span/s*.*?asp-validation-for/s*?=/s*?""ConfirmPassword""/s*?.*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""ConfirmPassword"".");
+        }
+
+        [Fact(DisplayName = "Create HttpGet Register Action @create-httpget-register-action")]
+        public void CreateHttpGetRegisterActionTest()
+        {
+            var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
+            Assert.True(File.Exists(filePath), @"`AccountController.cs` was not found in the `Controllers` folder.");
+
+            var accountController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                                     from type in assembly.GetTypes()
+                                     where type.FullName == "WishList.Controllers.AccountController"
+                                     select type).FirstOrDefault();
+            Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
+            var method = accountController.GetMethod("Register", new Type[]{});
+            Assert.True(method != null, "`AccountController` did not contain a `Register` method with a return type of `IActionResult`");
+            Assert.True(method.ReturnType == typeof(IActionResult), "`AccountController` did not contain a `Register` method with a return type of `IActionResult`");
+            Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpGetAttribute)) != null, "`AccountController` did not contain a `Register` method with an `HttpGet` attribute");
+
+            string file;
+            using (var streamReader = new StreamReader(filePath))
+            {
+                file = streamReader.ReadToEnd();
+            }
+
+            var pattern = @"return\s*View[(]/s*?(""Register"")?/s*?[)];";
+            var rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`AccountController`'s Get `Register` action did not return the `Register` view.");
         }
     }
 }
