@@ -100,8 +100,8 @@ namespace WishListTests
                                      select type).FirstOrDefault();
             Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
             var method = accountController.GetMethod("Register", new Type[]{});
-            Assert.True(method != null, "`AccountController` did not contain a `Register` method with a return type of `IActionResult`");
-            Assert.True(method.ReturnType == typeof(IActionResult), "`AccountController` did not contain a `Register` method with a return type of `IActionResult`");
+            Assert.True(method != null, "`AccountController` did not contain a `public` `Register` method with no parameters");
+            Assert.True(method.ReturnType == typeof(IActionResult), "`AccountController`'s Get `Register` method did not have a return type of `IActionResult`");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpGetAttribute)) != null, "`AccountController` did not contain a `Register` method with an `HttpGet` attribute");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AllowAnonymousAttribute)) != null, "`AccountController`'s Get `Register` method did not have the `AllowAnonymous` attribute");
 
@@ -114,6 +114,43 @@ namespace WishListTests
             var pattern = @"return\s*View[(]/s*?(""Register"")?/s*?[)];";
             var rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`AccountController`'s Get `Register` action did not return the `Register` view.");
+            // Need to verify this runs on the correct method
+        }
+
+        [Fact(DisplayName = "Create HttpPost Register Action @create-httppost-register-action")]
+        public void CreateHttpPostRegisterActionTest()
+        {
+            var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
+            Assert.True(File.Exists(filePath), @"`AccountController.cs` was not found in the `Controllers` folder.");
+
+            var accountController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                                     from type in assembly.GetTypes()
+                                     where type.FullName == "WishList.Controllers.AccountController"
+                                     select type).FirstOrDefault();
+            Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
+
+            var registerViewModel = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                                     from type in assembly.GetTypes()
+                                     where type.FullName == "WishList.Models.AccountViewModels.RegisterViewModel"
+                                     select type).FirstOrDefault();
+            Assert.True(registerViewModel != null, "A `public` class `RegisterViewModel` was not found in the `WishList.Models.AccountViewModels` namespace.");
+
+            var method = accountController.GetMethod("Register", new Type[] { registerViewModel });
+            Assert.True(method != null, "`AccountController` did not contain a `Register` method with a parameter of type `RegisterViewModel`.");
+            Assert.True(method.ReturnType == typeof(IActionResult), "`AccountController`'s Post `Register` method did not have a return type of `IActionResult`");
+            Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpPostAttribute)) != null, "`AccountController` did not contain a `Register` method with an `HttpPost` attribute");
+            Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AllowAnonymousAttribute)) != null, "`AccountController`'s Post `Register` method did not have the `AllowAnonymous` attribute");
+
+            string file;
+            using (var streamReader = new StreamReader(filePath))
+            {
+                file = streamReader.ReadToEnd();
+            }
+
+            var pattern = @"return\s*View[(]/s*?(""Register"")?/s*?[)];";
+            var rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`AccountController`'s Post `Register` action did not return the `Register` view.");
+            // Need to verify this is running on the correct method
         }
     }
 }
