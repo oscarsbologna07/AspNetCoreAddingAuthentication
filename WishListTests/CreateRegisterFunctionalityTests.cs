@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
@@ -102,6 +103,7 @@ namespace WishListTests
             Assert.True(method != null, "`AccountController` did not contain a `Register` method with a return type of `IActionResult`");
             Assert.True(method.ReturnType == typeof(IActionResult), "`AccountController` did not contain a `Register` method with a return type of `IActionResult`");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpGetAttribute)) != null, "`AccountController` did not contain a `Register` method with an `HttpGet` attribute");
+            Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AllowAnonymousAttribute)) != null, "`AccountController`'s Get `Register` method did not have the `AllowAnonymous` attribute");
 
             string file;
             using (var streamReader = new StreamReader(filePath))
