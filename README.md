@@ -36,8 +36,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 
 - [ ] Adding Authentication to our existing ASP.NET Core wishlist app
 	- [ ] Configure Authenetication
-		- [ ] Inside the `Models` folder create a new model `ApplicationUser`
-			- `ApplicationUser` should inherit `IdentityUser` class (you will need a `using` statement for `Microsoft.AspNetCore.Identity`)
+		- Note : We created the model `ApplicationUser` that inherits `IdentityUser` for you! (This was done to allow us to more accurately test your code through out this project)
 		- [ ] Replace `AppicationDbContext`'s inheritance of `DbContext` to `IdentityDbContext<ApplicationUser>`
 		- [ ] In `StartUp.cs`'s `ConfigureServices` method call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`
 		- [ ] In `StartUp.cs`'s `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
