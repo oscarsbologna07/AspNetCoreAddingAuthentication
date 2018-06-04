@@ -10,16 +10,16 @@ namespace WishListTests
 {
     public class ConfigureAuthenticationTests
     {
-        [Fact(DisplayName = "Update ApplicationDbContexts Inherittance @update-applicationdbcontexts-inherittance")]
+        [Fact(DisplayName = "Update ApplicationDbContexts Inheritance @update-applicationdbcontexts-inheritance")]
         public void UpdateApplicationDbContextInherritenceTest()
         {
             var applicationDbContext = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                                         from type in assembly.GetTypes()
                                         where type.FullName == "WishList.Data.ApplicationDbContext"
                                         select type).FirstOrDefault();
-            
+
             Assert.True(applicationDbContext != null, "A `public` class `ApplicationDbContext` was not found in the `WishList.Data` namespace, was it accidentally renamed or deleted?");
-            Assert.True(applicationDbContext.BaseType == typeof(IdentityDbContext<ApplicationUser>), "`ApplicationDbContext` is not inheritting `IdentityDbContext<ApplicationUser>`.");
+            Assert.True(applicationDbContext.BaseType == typeof(IdentityDbContext<ApplicationUser>), "`ApplicationDbContext` is not inheriting `IdentityDbContext<ApplicationUser>`.");
         }
 
         [Fact(DisplayName = "Call AddIdentity In Configure @call-addidentity-in-configureservices")]

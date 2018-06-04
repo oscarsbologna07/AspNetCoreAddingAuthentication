@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,12 +18,12 @@ namespace WishListTests
             Assert.True(File.Exists(filePath), "`AccountController.cs` was not found in the `Controllers` folder.");
 
             var accountController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                        from type in assembly.GetTypes()
-                                        where type.FullName == "WishList.Controllers.AccountController"
-                                        select type).FirstOrDefault();
+                                     from type in assembly.GetTypes()
+                                     where type.FullName == "WishList.Controllers.AccountController"
+                                     select type).FirstOrDefault();
 
             Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
-            Assert.True(accountController.BaseType == typeof(Controller), "`AccountController` didn`t inherit the `Controllers` class.");
+            Assert.True(accountController.BaseType == typeof(Controller), "`AccountController` didn't inherit the `Controllers` class.");
             Assert.True(accountController.CustomAttributes.Where(e => e.AttributeType == typeof(AuthorizeAttribute)) != null, "`AccountController` didn't have an `Authorize` attribute.");
         }
 
@@ -59,11 +57,11 @@ namespace WishListTests
 
             var constructor = accountController.GetConstructors().FirstOrDefault();
             var parameters = constructor.GetParameters();
-            Assert.True((parameters[0]?.GetType() == typeof(UserManager<ApplicationUser>) && parameters[1]?.GetType() == typeof(SignInManager<ApplicationUser)), "`AccountController` did not contain a constructor with two parameters, first of type `UserManager<ApplicationUser>`, second of type `SignInManager<ApplicationUser>`.");
-            
-            var userManager = new UserManager<ApplicationUser>(null,null,null,null,null,null,null,null,null);
+            Assert.True((parameters[0]?.GetType() == typeof(UserManager<ApplicationUser>) && parameters[1]?.GetType() == typeof(SignInManager<ApplicationUser>)), "`AccountController` did not contain a constructor with two parameters, first of type `UserManager<ApplicationUser>`, second of type `SignInManager<ApplicationUser>`.");
+
+            var userManager = new UserManager<ApplicationUser>(null, null, null, null, null, null, null, null, null);
             var signInManager = new SignInManager<ApplicationUser>(userManager, null, null, null, null, null);
-            var controller = Activator.CreateInstance(accountController, new object[]{ userManager, signInManager });
+            var controller = Activator.CreateInstance(accountController, new object[] { userManager, signInManager });
             Assert.True(accountController.GetField("_userManager", System.Reflection.BindingFlags.NonPublic)?.GetValue(controller) != null, "`AccountController`'s constructor did not set the `_userManager` field based on the provided `UserManager<ApplicationUser>` parameter.");
             Assert.True(accountController.GetField("_signInManager", System.Reflection.BindingFlags.NonPublic)?.GetValue(controller) != null, "`AccountController``s constructor did not set the `_signInManager` field based on the provided `SignInManager<ApplicationUser>` parameter.");
         }

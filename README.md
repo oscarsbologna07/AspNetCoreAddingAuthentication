@@ -9,7 +9,7 @@ Note: This project is the second in a series of four projects, this project will
 ## If you want to use Visual Studio
 If you want to use Visual Studio (highly recommended) follow the following steps:
 -   If you already have Visual Studio installed make sure you have .Net Core installed by running the "Visual Studio Installer" and making sure ".NET Core cross-platform development" is checked
--   If you need to install visual studio download it at https://www.microsoft.com/net/download/ (If you'r using Windows you'll want to check "ASP.NET" and ".NET Core cross-platform development" on the workloads screen during installation.)
+-   If you need to install visual studio download it at https://www.microsoft.com/net/download/ (If you're using Windows you'll want to check "ASP.NET" and ".NET Core cross-platform development" on the workloads screen during installation.)
 -   Open the .sln file in visual studio
 -   To run the application simply press the Start Debug button (green arrow) or press F5
 -   If you're using Visual Studio on Windows, to run tests open the Test menu, click Run, then click on Run all tests (results will show up in the Test Explorer)
@@ -23,19 +23,19 @@ If you would rather use something other than Visual Studio
 -   To run the application go into the WishList project folder and type `dotnet run`
 -   To run the tests go into the WishListTests project folder and type `dotnet test`
 
-# Features you will impliment
+# Features you will implement
 
 - Add support for user authentication
 - Create functionality for creating and logging in
 - Expand Wishlist functionality to support multiple users
-- Impliment several basic security practices (validation tokens, user verification, authentication, etc)
+- Implement several basic security practices (validation tokens, user verification, authentication, etc)
 
-## Tasks necessary to complete implimentation:
+## Tasks necessary to complete implementation:
 
-__Note:__ this isn't the only way to accomplish this, however; this is what the project's tests are expecting. Implimenting this in a different way will likely result in being marked as incomplete / incorrect.
+__Note:__ this isn't the only way to accomplish this, however; this is what the project's tests are expecting. Implementing this in a different way will likely result in being marked as incomplete / incorrect.
 
 - [ ] Adding Authentication to our existing ASP.NET Core wishlist app
-	- [ ] Configure Authenetication
+	- [ ] Configure Authentication
 		- Note : We created the model `ApplicationUser` that inherits `IdentityUser` for you! (This was done to allow us to more accurately test your code through out this project)
 		- [ ] Replace `AppicationDbContext`'s inheritance of `DbContext` to `IdentityDbContext<ApplicationUser>`
 		- [ ] In `StartUp.cs`'s `ConfigureServices` method call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`
@@ -158,6 +158,6 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 	
 ## What Now?
 
-You've compeleted the tasks of this project, if you want to continue working on this project there will be additional projects added to the ASP.NET Core path that continue where this project left off adding more advanced views and models, as well as providing and consuming data as a webservice.
+You've completed the tasks of this project, if you want to continue working on this project there will be additional projects added to the ASP.NET Core path that continue where this project left off adding more advanced views and models, as well as providing and consuming data as a web service.
 
 Otherwise now is a good time to continue on the ASP.NET Core path to expand your understanding of the ASP.NET Core framework or take a look at the Microsoft Azure for Developers path as Azure is a common choice for hosting, scaling, and expanding the functionality of ASP.NET Core applications.

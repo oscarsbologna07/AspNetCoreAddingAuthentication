@@ -29,7 +29,7 @@ namespace WishListTests
             Assert.True(emailProperty != null, "`RegisterViewModel` does not appear to contain a `public` `string` property `Email`.");
             Assert.True(emailProperty.PropertyType == typeof(string), "`RegisterViewModel` has a property `Email` but it is not of type `string`.");
             Assert.True(Attribute.IsDefined(emailProperty, typeof(RequiredAttribute)), "`RegisterViewModel` has a property `Email` but it doesn't appear to have a `Required` attribute.");
-            Assert.True(emailProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(EmailAddressAttribute)) != null,"`RegisterViewModel` has a property `Email` but it doesn't appear to have an `EmailAddress` attribute.");
+            Assert.True(emailProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(EmailAddressAttribute)) != null, "`RegisterViewModel` has a property `Email` but it doesn't appear to have an `EmailAddress` attribute.");
 
             var passwordProperty = registerViewModel.GetProperty("Password");
             Assert.True(passwordProperty != null, "`RegisterViewModel` does not appear to contain a `public` `string` property `Password`.");
@@ -45,7 +45,7 @@ namespace WishListTests
             Assert.True(confirmPasswordProperty.PropertyType == typeof(string), "`RegisterViewModel` has a property `ConfirmPassword` but it is not of type `string`.");
             Assert.True(confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute)) != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appear to have a `DataType` attribute set to `Password`.");
             // need to verify datatype is set to password
-            Assert.True(confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(CompareAttribute)) != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appeart to have a `Compare` attribute set to `Password`.");
+            Assert.True(confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(CompareAttribute)) != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appear to have a `Compare` attribute set to `Password`.");
             // need to verify compare is set to password
         }
 
@@ -101,14 +101,14 @@ namespace WishListTests
                                      where type.FullName == "WishList.Controllers.AccountController"
                                      select type).FirstOrDefault();
             Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
-            var method = accountController.GetMethod("Register", new Type[]{});
+            var method = accountController.GetMethod("Register", new Type[] { });
             Assert.True(method != null, "`AccountController` did not contain a `public` `Register` method with no parameters");
             Assert.True(method.ReturnType == typeof(IActionResult), "`AccountController`'s Get `Register` method did not have a return type of `IActionResult`");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpGetAttribute)) != null, "`AccountController` did not contain a `Register` method with an `HttpGet` attribute");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AllowAnonymousAttribute)) != null, "`AccountController`'s Get `Register` method did not have the `AllowAnonymous` attribute");
 
-            var userManeger = new UserManager<ApplicationUser>(null,null,null,null,null,null,null,null,null);
-            var signInManager = new SignInManager<ApplicationUser>(null,null,null,null,null,null);
+            var userManeger = new UserManager<ApplicationUser>(null, null, null, null, null, null, null, null, null);
+            var signInManager = new SignInManager<ApplicationUser>(null, null, null, null, null, null);
             var controller = Activator.CreateInstance(accountController, new object[] { userManeger, signInManager });
             var results = (ViewResult)method.Invoke(controller, null);
             Assert.True(results.ViewName == "Register");
@@ -147,11 +147,11 @@ namespace WishListTests
             registerViewModel.GetProperty("ConfirmPassword").SetValue(model, "!4oOauidT_5");
             var badModelResults = (ViewResult)method.Invoke(controller, new object[] { model });
             Assert.True(badModelResults.ViewName == "Register", "`AccountController`'s Post `Register` method did not return the `Register` view when the `ModelState` was not valid.");
-            Assert.True(badModelResults.Model == model, "`AccountController`'s Post `Regester` method did not provide the invalid model when returning the `Register` view when the `ModelState` was not valid.");
+            Assert.True(badModelResults.Model == model, "`AccountController`'s Post `Register` method did not provide the invalid model when returning the `Register` view when the `ModelState` was not valid.");
 
             registerViewModel.GetProperty("Email").SetValue(model, "Valid@Email.com");
             var goodModelResults = (RedirectToActionResult)method.Invoke(controller, new object[] { model });
-            Assert.True(goodModelResults.ControllerName == "Home" && goodModelResults.ActionName == "Index", "`AccountController`'s Post `Regester` method did not return a `RedirectToAction` to the `Home.Index` action when a valid model was submitted.");
+            Assert.True(goodModelResults.ControllerName == "Home" && goodModelResults.ActionName == "Index", "`AccountController`'s Post `Register` method did not return a `RedirectToAction` to the `Home.Index` action when a valid model was submitted.");
             // Need to verify user was created
         }
     }
