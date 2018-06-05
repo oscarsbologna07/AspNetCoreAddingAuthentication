@@ -146,15 +146,14 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- This action should have a return type of `Task<IActionResult>`
 			- This action should use `SignInManager`'s `SignOutAsync` method (Note: you will want to `await` this method to ensure the sign out completes)
 			- This should return a `RedirectToAction` to the `Home.Index` action
-	- [ ] Update Item Model to Include UserId -- Come back to this to ensure this is done according to new best practices
-		- [ ] Add UserId to Item model
-			- UserId should have Required attribute
+	- [ ] Update Item Model to Include UserId
+		- [ ] Add string UserId property to Item model
 	- [ ] Update ItemController Actions to consider UserId
 		- [ ] Add the `Authorize` attribute to the `ItemController` class
 		- [ ] Update the `ItemController.Index` action
 			- Change the `_context.Items.ToList();` to include a `Where` call that only gets items with the matching userId.
 		- [ ] Update `ItemController.Create` (HttpPost action) action
-			- Add a line before adding the Item to set the UserId to the logged in user's Id
+			- Before adding the Item to set the UserId to the logged in user's Id (using the `SignInManager`'s `GetUserId` method)
 	
 ## What Now?
 
