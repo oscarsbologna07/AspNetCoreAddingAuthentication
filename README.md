@@ -42,7 +42,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 		- [ ] In `StartUp.cs`'s `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
 	- [ ] Create `AccountController`
 		- [ ] Create new controller `AccountController` in the `Controllers` folder
-			- The AccountController class should have the `authorize` attribute (you will need a `using` statement for `Microsoft.AspNetCore.Authorization`)
+			- The AccountController class should have the `Authorize` attribute (you will need a `using` statement for `Microsoft.AspNetCore.Authorization`)
 			- This should inherit the `Controller` class (you will need a `using` statement for `Microsoft.AspNetCore.Mvc`)
 		- [ ] Create private fields
 			- This should have a private readonly field of type `UserManager<ApplicationUser>` named `_userManager`
@@ -140,7 +140,6 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 	- [ ] Create Logout Functionality
 		- [ ] Create an HttpPost Action Logout in the AcctionController
 			- This action should have the `HttpPost` attribute
-			- This action should have the `Authorize` attribute
 			- This action should have the `ValidateAntiForgeryToken` attribute
 			- This action should use the `async` keyword
 			- This action should have a return type of `Task<IActionResult>`
