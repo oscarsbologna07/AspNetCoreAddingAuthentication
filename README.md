@@ -9,7 +9,7 @@ Note: This project is the second in a series of four projects, this project will
 ## If you want to use Visual Studio
 If you want to use Visual Studio (highly recommended) follow the following steps:
 -   If you already have Visual Studio installed make sure you have .Net Core installed by running the "Visual Studio Installer" and making sure ".NET Core cross-platform development" is checked
--   If you need to install visual studio download it at https://www.microsoft.com/net/download/ (If you'r using Windows you'll want to check "ASP.NET" and ".NET Core cross-platform development" on the workloads screen during installation.)
+-   If you need to install visual studio download it at https://www.microsoft.com/net/download/ (If you're using Windows you'll want to check "ASP.NET" and ".NET Core cross-platform development" on the workloads screen during installation.)
 -   Open the .sln file in visual studio
 -   To run the application simply press the Start Debug button (green arrow) or press F5
 -   If you're using Visual Studio on Windows, to run tests open the Test menu, click Run, then click on Run all tests (results will show up in the Test Explorer)
@@ -23,38 +23,33 @@ If you would rather use something other than Visual Studio
 -   To run the application go into the WishList project folder and type `dotnet run`
 -   To run the tests go into the WishListTests project folder and type `dotnet test`
 
-# Features you will impliment
+# Features you will implement
 
 - Add support for user authentication
 - Create functionality for creating and logging in
 - Expand Wishlist functionality to support multiple users
-- Impliment several basic security practices (validation tokens, user verification, authentication, etc)
+- Implement several basic security practices (validation tokens, user verification, authentication, etc)
 
-## Tasks necessary to complete implimentation:
+## Tasks necessary to complete implementation:
 
-__Note:__ this isn't the only way to accomplish this, however; this is what the project's tests are expecting. Implimenting this in a different way will likely result in being marked as incomplete / incorrect.
+__Note:__ this isn't the only way to accomplish this, however; this is what the project's tests are expecting. Implementing this in a different way will likely result in being marked as incomplete / incorrect.
 
 - [ ] Adding Authentication to our existing ASP.NET Core wishlist app
-	- [ ] Create `ApplicationUser` Model
-		- [ ] Inside the `Models` folder create a new model `ApplicationUser`
-			- `ApplicationUser` should inherit `IdentityUser` class
-	- [ ] Change `ApplicationDbContext` to use `IdentityDbContext`
-		- [ ] Replace `AppicationDbContext`'s inherritance of `DbContext` to `IdentityDbContext<ApplicationUser>`
-	- [ ] Add Support for `Authentication`
-		- [ ] In the `Configuration` call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`
-		- [ ] In the `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
+	- [ ] Configure Authentication
+		- Note : We created the model `ApplicationUser` that inherits `IdentityUser` for you! (This was done to allow us to more accurately test your code through out this project)
+		- [ ] Replace `AppicationDbContext`'s inheritance of `DbContext` to `IdentityDbContext<ApplicationUser>`
+		- [ ] In `StartUp.cs`'s `ConfigureServices` method call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`
+		- [ ] In `StartUp.cs`'s `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
 	- [ ] Create `AccountController`
 		- [ ] Create new controller `AccountController` in the `Controllers` folder
-			- The AccountController class should have the `authorize` attribute
-			- This should inherit the `Controller` class (you will need a using statement for `Microsoft.AspNetCore.Mvc`)
+			- The AccountController class should have the `Authorize` attribute (you will need a `using` statement for `Microsoft.AspNetCore.Authorization`)
+			- This should inherit the `Controller` class (you will need a `using` statement for `Microsoft.AspNetCore.Mvc`)
 		- [ ] Create private fields
 			- This should have a private readonly field of type `UserManager<ApplicationUser>` named `_userManager`
 			- This should have a private readonly field of type `SignInManager<ApplicationUser>` named `_signInManager`
 		- [ ] Create `AccountController` Constructor
 			- This constructor should accept two parameters, the first of type `UserManager<ApplicationUser>`, the second of type `signInManager<ApplicationUser>`
 			- This constructor should set each of the private readonly properties using the parameter of the same type
-		- [ ] Add public property
-			- This should have a public property of type `string` named `ErrorMessage` (both the getter and setter should be public)
 	- [ ] Create Register Functionality
 		- [ ] Create Register Model
 			- Inside the `Models/AccountViewModels` folder create a new model `RegisterViewModel` (You will need to create the AccountViewModels folder)
@@ -66,7 +61,6 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				- `Password` should have the `DataType.Password` attribute
 				- `Password` should have a `StringLength` attribute of 100 with a `MinLength` of 8 characters
 			- Create a `String` Property `ConfirmPassword`
-				- `ConfirmPassword` should have the `Required` attribute
 				- `ConfirmPassword` should have the `DataType.Password` attribute
 				- `ConfirmPassword` should have the `Compare` attribute with "Password"
 		- [ ] Create the Register View
@@ -146,24 +140,22 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 	- [ ] Create Logout Functionality
 		- [ ] Create an HttpPost Action Logout in the AcctionController
 			- This action should have the `HttpPost` attribute
-			- This action should have the `Authorize` attribute
 			- This action should have the `ValidateAntiForgeryToken` attribute
 			- This action should use the `async` keyword
 			- This action should have a return type of `Task<IActionResult>`
 			- This action should use `SignInManager`'s `SignOutAsync` method (Note: you will want to `await` this method to ensure the sign out completes)
 			- This should return a `RedirectToAction` to the `Home.Index` action
-	- [ ] Update Item Model to Include UserId -- Come back to this to ensure this is done according to new best practices
-		- [ ] Add UserId to Item model
-			- UserId should have Required attribute
+	- [ ] Update Item Model to Include UserId
+		- [ ] Add string UserId property to Item model
 	- [ ] Update ItemController Actions to consider UserId
 		- [ ] Add the `Authorize` attribute to the `ItemController` class
 		- [ ] Update the `ItemController.Index` action
 			- Change the `_context.Items.ToList();` to include a `Where` call that only gets items with the matching userId.
 		- [ ] Update `ItemController.Create` (HttpPost action) action
-			- Add a line before adding the Item to set the UserId to the logged in user's Id
+			- Before adding the Item to set the UserId to the logged in user's Id (using the `SignInManager`'s `GetUserId` method)
 	
 ## What Now?
 
-You've compeleted the tasks of this project, if you want to continue working on this project there will be additional projects added to the ASP.NET Core path that continue where this project left off adding more advanced views and models, as well as providing and consuming data as a webservice.
+You've completed the tasks of this project, if you want to continue working on this project there will be additional projects added to the ASP.NET Core path that continue where this project left off adding more advanced views and models, as well as providing and consuming data as a web service.
 
 Otherwise now is a good time to continue on the ASP.NET Core path to expand your understanding of the ASP.NET Core framework or take a look at the Microsoft Azure for Developers path as Azure is a common choice for hosting, scaling, and expanding the functionality of ASP.NET Core applications.
