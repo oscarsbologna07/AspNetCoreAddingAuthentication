@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace WishListTests
@@ -16,9 +14,9 @@ namespace WishListTests
             Assert.True(File.Exists(filePath), @"`Item.cs` was not found in the `Models` folder, did you accidentally rename or remove it?");
 
             var item = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                  from type in assembly.GetTypes()
-                                  where type.FullName == "WishList.Models.Item"
-                                  select type).FirstOrDefault();
+                        from type in assembly.GetTypes()
+                        where type.FullName == "WishList.Models.Item"
+                        select type).FirstOrDefault();
             Assert.True(item != null, "A `public` class `Item` was not found in the `WishList.Models` namespace.");
 
             var userIdProperty = item.GetProperty("UserId");

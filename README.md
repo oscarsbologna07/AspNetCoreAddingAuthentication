@@ -37,15 +37,15 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 - [ ] Adding Authentication to our existing ASP.NET Core wishlist app
 	- [ ] Configure Authentication
 		- Note : We created the model `ApplicationUser` that inherits `IdentityUser` for you! (This was done to allow us to more accurately test your code through out this project)
-		- [ ] Replace `AppicationDbContext`'s inheritance of `DbContext` to `IdentityDbContext<ApplicationUser>`
-		- [ ] In `StartUp.cs`'s `ConfigureServices` method call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`
+		- [ ] Replace `ApplicationDbContext`'s inheritance of `DbContext` to `IdentityDbContext<ApplicationUser>` (you will need to add `using` statements for `Microsoft.AspNetCore.Identity.EntityFrameworkCore` and `using WishList.Models`)
+		- [ ] In `StartUp.cs`'s `ConfigureServices` method call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services` (you will need to add `using` statements for `Microsoft.AspNetCore.Identity` and `using WishList.Models`)
 		- [ ] In `StartUp.cs`'s `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
 	- [ ] Create `AccountController`
 		- [ ] Create new controller `AccountController` in the `Controllers` folder
 			- The AccountController class should have the `Authorize` attribute (you will need a `using` statement for `Microsoft.AspNetCore.Authorization`)
 			- This should inherit the `Controller` class (you will need a `using` statement for `Microsoft.AspNetCore.Mvc`)
 		- [ ] Create private fields
-			- This should have a private readonly field of type `UserManager<ApplicationUser>` named `_userManager`
+			- This should have a private readonly field of type `UserManager<ApplicationUser>` named `_userManager` (you will need a `using` statements for `WishList.Models` and `Microsoft.AspNetCore.Identity`)
 			- This should have a private readonly field of type `SignInManager<ApplicationUser>` named `_signInManager`
 		- [ ] Create `AccountController` Constructor
 			- This constructor should accept two parameters, the first of type `UserManager<ApplicationUser>`, the second of type `signInManager<ApplicationUser>`
@@ -54,12 +54,12 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 		- [ ] Create Register Model
 			- Inside the `Models/AccountViewModels` folder create a new model `RegisterViewModel` (You will need to create the AccountViewModels folder)
 			- Create a `String` Property Email
-				- Email should have the Required attribute
+				- Email should have the Required attribute (you will need to add a `using` statement for `System.ComponentModel.DataAnnotations`)
 				- Email should have the EmailAddress attribute
 			- Create a String Property `Password`
 				- `Password` should have the `Required` attribute
-				- `Password` should have the `DataType.Password` attribute
 				- `Password` should have a `StringLength` attribute of 100 with a `MinLength` of 8 characters
+				- `Password` should have the `DataType.Password` attribute
 			- Create a `String` Property `ConfirmPassword`
 				- `ConfirmPassword` should have the `DataType.Password` attribute
 				- `ConfirmPassword` should have the `Compare` attribute with "Password"

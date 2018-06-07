@@ -34,7 +34,7 @@ namespace WishListTests
                 file = streamReader.ReadToEnd();
             }
 
-            var pattern = @"services/s*?[.]AddIdentity/s*?[<]/s*?ApplicationUser/s*?,/s*?IdentityRole/s*?[>]/s*?[(]/s*?[)]/s*?[.]AddEntityFrameworkStores/s*?[<]/s*?ApplicationDbContext/s*?[>]/s*?[(]/s*?[)]/s*?[.]AddDefaultTokenProviders/s*?[(]/s*?[)]/s*?;";
+            var pattern = @"services\s*?[.]AddIdentity\s*?[<]\s*?ApplicationUser\s*?,\s*?IdentityRole\s*?[>]\s*?[(]\s*?[)]\s*?[.]AddEntityFrameworkStores\s*?[<]\s*?ApplicationDbContext\s*?[>]\s*?[(]\s*?[)]\s*?[.]AddDefaultTokenProviders\s*?[(]\s*?[)]\s*?;";
             var rgx = new Regex(pattern);
 
             Assert.True(rgx.IsMatch(file), "`StartUp.ConfigureServices` didn't contain a call the `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`.");

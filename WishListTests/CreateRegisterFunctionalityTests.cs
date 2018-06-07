@@ -35,18 +35,23 @@ namespace WishListTests
             Assert.True(passwordProperty != null, "`RegisterViewModel` does not appear to contain a `public` `string` property `Password`.");
             Assert.True(passwordProperty.PropertyType == typeof(string), "`RegisterViewModel` has a property `Password` but it is not of type `string`.");
             Assert.True(passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(RequiredAttribute)) != null, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `Required` attribute.");
-            Assert.True(passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(StringLengthAttribute)) != null, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `StringLength` attribute of 100, with a minimum length of 8");
-            // need to verify string length's max and minlength
-            Assert.True(passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute)) != null, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `DataType` attribute set to `Password`.");
-            // need to verify datatype is set to password
+            var stringLength = passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(StringLengthAttribute));
+            Assert.True(stringLength != null, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `StringLength` attribute of 100, with a minimum length of 8");
+            Assert.True(stringLength.ConstructorArguments.Count == 1 && (int)stringLength.ConstructorArguments[0].Value == 100, "`RegisterViewModel` has a property `Password`and a `StringLength` attribute, but it's `maxLength` isn't set to 100.");
+            Assert.True(stringLength.NamedArguments.Count == 1 && (int)stringLength.NamedArguments[0].TypedValue.Value == 8, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `StringLength` attribute of 100, but it's minimum length was not set to 8");
+            var dataType = passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute));
+            Assert.True(dataType != null, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `DataType` attribute set to `Password`.");
+            Assert.True(dataType.ConstructorArguments.Count == 1 && (int)dataType.ConstructorArguments[0].Value == 11, "`RegisterViewModel` has a property `Password` and it has a `DataType` attribute but it's not set to `DataType.Password`.");
 
             var confirmPasswordProperty = registerViewModel.GetProperty("ConfirmPassword");
             Assert.True(confirmPasswordProperty != null, "`RegisterViewModel` does not appear to contain a `public` `string` property `ConfirmPassword`.");
             Assert.True(confirmPasswordProperty.PropertyType == typeof(string), "`RegisterViewModel` has a property `ConfirmPassword` but it is not of type `string`.");
-            Assert.True(confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute)) != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appear to have a `DataType` attribute set to `Password`.");
-            // need to verify datatype is set to password
-            Assert.True(confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(CompareAttribute)) != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appear to have a `Compare` attribute set to `Password`.");
-            // need to verify compare is set to password
+            dataType = confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute));
+            Assert.True(dataType != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appear to have a `DataType` attribute set to `DataType.Password`.");
+            Assert.True(dataType.ConstructorArguments.Count == 1 && (int)dataType.ConstructorArguments[0].Value == 11, "`RegisterViewModel` has a property `ConfirmPassword` and it has a `DataType` attribute but it's not set to `DataType.Password`.");
+            var confirm = confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(CompareAttribute));
+            Assert.True(confirm != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appear to have a `Compare` attribute set to `Password`.");
+            Assert.True(confirm.ConstructorArguments.Count == 1 && (string)confirm.ConstructorArguments[0].Value == "Password", "`RegisterViewModel` has a property `ConfirmPassword` with a `Compare` attribute, but it is not set to `Password`.");
         }
 
         [Fact(DisplayName = "Create Register View @create-register-view")]

@@ -16,12 +16,12 @@ namespace WishListTests
             Assert.True(File.Exists(filePath), "`ItemController.cs` was not found in the `Controllers` folder, did you remove or rename it?");
 
             var itemController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Controllers.ItemController"
-                                     select type).FirstOrDefault();
+                                  from type in assembly.GetTypes()
+                                  where type.FullName == "WishList.Controllers.ItemController"
+                                  select type).FirstOrDefault();
 
             Assert.True(itemController != null, "A `public` class `ItemController` was not found in the `WishList.Controllers` namespace, did you remove or rename it?");
-            Assert.True(itemController.CustomAttributes.Where(e => e.AttributeType == typeof(AuthorizeAttribute)) != null, "`ItemController` didn't have an `Authorize` attribute.");
+            Assert.True(itemController.CustomAttributes.Any(e => e.AttributeType == typeof(AuthorizeAttribute)), "`ItemController` didn't have an `Authorize` attribute.");
         }
 
         [Fact(DisplayName = "Update Index Action @update-index-action")]
@@ -31,12 +31,12 @@ namespace WishListTests
             Assert.True(File.Exists(filePath), @"`ItemController.cs` was not found in the `Controllers` folder.");
 
             var itemController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Controllers.ItemController"
-                                     select type).FirstOrDefault();
+                                  from type in assembly.GetTypes()
+                                  where type.FullName == "WishList.Controllers.ItemController"
+                                  select type).FirstOrDefault();
             Assert.True(itemController != null, "A `public` class `ItemController` was not found in the `WishList.Controllers` namespace.");
 
-            var method = itemController.GetMethod("Index", new Type[] {  });
+            var method = itemController.GetMethod("Index", new Type[] { });
             Assert.True(method != null, "`ItemController` did not contain a `Index` method did you remove or rename it?");
 
             var controller = Activator.CreateInstance(itemController, new object[] { });

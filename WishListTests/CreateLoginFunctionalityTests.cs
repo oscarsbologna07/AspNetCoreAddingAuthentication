@@ -63,9 +63,9 @@ namespace WishListTests
             Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
 
             var loginViewModel = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Models.AccountViewModels.LoginViewModel"
-                                     select type).FirstOrDefault();
+                                  from type in assembly.GetTypes()
+                                  where type.FullName == "WishList.Models.AccountViewModels.LoginViewModel"
+                                  select type).FirstOrDefault();
             Assert.True(loginViewModel != null, "A `public` class `LoginViewModel` was not found in the `WishList.Models.AccountViewModels` namespace.");
 
             var method = accountController.GetMethod("Login", new Type[] { loginViewModel });
