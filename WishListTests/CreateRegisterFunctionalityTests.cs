@@ -1,11 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Moq;
+using WishList.Controllers;
 using WishList.Models;
 using Xunit;
 
@@ -66,31 +73,35 @@ namespace WishListTests
                 file = streamReader.ReadToEnd();
             }
 
-            var pattern = @"</s*?form/s*.*?asp-action/s*?=/s*?""Register""/s*?.*?>";
+            var pattern = @"@model\s*WishList[.]Models[.]AccountViewModels[.]RegisterViewModel";
             var rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` doesn't have it's model set to `WishList.Models.AccountViewModels.RegisterViewModel`.");
+
+            pattern = @"<\s*?form\s*.*?asp-action\s*?=\s*?""Register""\s*?.*?>";
+            rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml`'s `form` tag didn't contain an attribute `asp-action` set to ""Register"".");
 
-            pattern = @"</s*?input/s*.*?asp-for/s*?=/s*?""Email""/s*?.*?[/]>";
+            pattern = @"<\s*?input\s*.*?asp-for\s*?=\s*?""Email""\s*?.*?[/]>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""Email"".");
 
-            pattern = @"</s*?span/s*.*?asp-validation-for/s*?=/s*?""Email""/s*?.*?>";
+            pattern = @"<\s*?span\s*.*?asp-validation-for\s*?=\s*?""Email""\s*?.*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""Email"".");
 
-            pattern = @"</s*?input/s*.*?asp-for/s*?=/s*?""Password""/s*?.*?[/]>";
+            pattern = @"<\s*?input\s*.*?asp-for\s*?=\s*?""Password""\s*?.*?[/]>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""Password"".");
 
-            pattern = @"</s*?span/s*.*?asp-validation-for/s*?=/s*?""Password""/s*?.*?>";
+            pattern = @"<\s*?span\s*.*?asp-validation-for\s*?=\s*?""Password""\s*?.*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""Password"".");
 
-            pattern = @"</s*?input/s*.*?asp-for/s*?=/s*?""ConfirmPassword""/s*?.*?[/]>";
+            pattern = @"<\s*?input\s*.*?asp-for\s*?=\s*?""ConfirmPassword""\s*?.*?[/]>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""ConfirmPassword"".");
 
-            pattern = @"</s*?span/s*.*?asp-validation-for/s*?=/s*?""ConfirmPassword""/s*?.*?>";
+            pattern = @"<\s*?span\s*.*?asp-validation-for\s*?=\s*?""ConfirmPassword""\s*?.*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""ConfirmPassword"".");
         }
@@ -112,11 +123,15 @@ namespace WishListTests
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpGetAttribute)) != null, "`AccountController` did not contain a `Register` method with an `HttpGet` attribute");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AllowAnonymousAttribute)) != null, "`AccountController`'s Get `Register` method did not have the `AllowAnonymous` attribute");
 
-            var userManeger = new UserManager<ApplicationUser>(null, null, null, null, null, null, null, null, null);
-            var signInManager = new SignInManager<ApplicationUser>(null, null, null, null, null, null);
-            var controller = Activator.CreateInstance(accountController, new object[] { userManeger, signInManager });
-            var results = (ViewResult)method.Invoke(controller, null);
-            Assert.True(results.ViewName == "Register");
+            var userStore = new Mock<IUserStore<ApplicationUser>>();
+            var contextAccessor = new Mock<IHttpContextAccessor>();
+            var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
+            var userManager = new UserManager<ApplicationUser>(userStore.Object, null, null, null, null, null, null, null, null);
+            var signInManager = new SignInManager<ApplicationUser>(userManager, contextAccessor.Object, claimsFactory.Object, null, null, null);
+            var controller = Activator.CreateInstance(accountController, new object[] { userManager, signInManager });
+            var results = method.Invoke(controller, null) as ViewResult;
+            Assert.True(results != null, "`AccountController`'s HttpGet `Register` action did not return a the `Register` view.");
+            Assert.True(results.ViewName == "Register" || results.ViewName == null, "`AccountController`'s HttpGet `Register` action did not return a the `Register` view.");
         }
 
         [Fact(DisplayName = "Create HttpPost Register Action @create-httppost-register-action")]
@@ -143,21 +158,36 @@ namespace WishListTests
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpPostAttribute)) != null, "`AccountController` did not contain a `Register` method with an `HttpPost` attribute");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AllowAnonymousAttribute)) != null, "`AccountController`'s Post `Register` method did not have the `AllowAnonymous` attribute");
 
-            var userManeger = new UserManager<ApplicationUser>(null, null, null, null, null, null, null, null, null);
-            var signInManager = new SignInManager<ApplicationUser>(null, null, null, null, null, null);
-            var controller = Activator.CreateInstance(accountController, new object[] { userManeger, signInManager });
+            var userStore = new Mock<IUserPasswordStore<ApplicationUser>>();
+            var contextAccessor = new Mock<IHttpContextAccessor>();
+            var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
+            var userManager = new Mock<UserManager<ApplicationUser>>(userStore.Object, null, null, null, null, null, null, null, null);
+            userManager.Setup(e => e.CreateAsync(It.IsAny<ApplicationUser>(),It.IsAny<string>())).ReturnsAsync(new IdentityResult()).Verifiable();
+            var signInManager = new Mock<SignInManager<ApplicationUser>>(userManager.Object, contextAccessor.Object, claimsFactory.Object, null, null, null);
+            var controller = Activator.CreateInstance(accountController, new object[] { userManager.Object, signInManager.Object });
             var model = Activator.CreateInstance(registerViewModel, null);
-            registerViewModel.GetProperty("Email").SetValue(model, "BadEmail");
-            registerViewModel.GetProperty("Password").SetValue(model, "!4oOauidT_5");
-            registerViewModel.GetProperty("ConfirmPassword").SetValue(model, "!4oOauidT_5");
-            var badModelResults = (ViewResult)method.Invoke(controller, new object[] { model });
-            Assert.True(badModelResults.ViewName == "Register", "`AccountController`'s Post `Register` method did not return the `Register` view when the `ModelState` was not valid.");
-            Assert.True(badModelResults.Model == model, "`AccountController`'s Post `Register` method did not provide the invalid model when returning the `Register` view when the `ModelState` was not valid.");
+            registerViewModel.GetProperty("Email").SetValue(model, "Test@Test.com");
+            registerViewModel.GetProperty("Password").SetValue(model, "Aeoi89a8#$@aou");
+            registerViewModel.GetProperty("ConfirmPassword").SetValue(model, "Aeoi89a8#$@aou");
 
-            registerViewModel.GetProperty("Email").SetValue(model, "Valid@Email.com");
-            var goodModelResults = (RedirectToActionResult)method.Invoke(controller, new object[] { model });
-            Assert.True(goodModelResults.ControllerName == "Home" && goodModelResults.ActionName == "Index", "`AccountController`'s Post `Register` method did not return a `RedirectToAction` to the `Home.Index` action when a valid model was submitted.");
-            // Need to verify user was created
+            var goodModelResults = method.Invoke(controller, new object[] { model }) as RedirectToActionResult;
+            try
+            {
+                userManager.Verify();
+            }
+            catch (MockException)
+            {
+                Assert.True(false, "`AccountController`'s Post `Register` action did not create a new user when the model was valid.");
+            }
+            Assert.True(goodModelResults != null && goodModelResults.ControllerName == "Home" && goodModelResults.ActionName == "Index", "`AccountController`'s Post `Register` method did not return a `RedirectToAction` to the `Home.Index` action when a valid model was submitted.");
+
+            var modelState = accountController.GetProperty("ModelState").GetValue(controller);
+            var addModelError = typeof(ModelStateDictionary).GetMethod("AddModelError", new Type[] { typeof(string), typeof(string) });
+            addModelError.Invoke(modelState, new object[] { "Email", "The entered email is not a valid email address." });
+
+            var badModelResults = method.Invoke(controller, new object[] { model }) as ViewResult;
+            Assert.True(badModelResults?.ViewName == "Register" || badModelResults?.ViewName == null, "`AccountController`'s Post `Register` method did not return the `Register` view when the `ModelState` was not valid.");
+            Assert.True(badModelResults.Model == model, "`AccountController`'s Post `Register` method did not provide the invalid model when returning the `Register` view when the `ModelState` was not valid.");
         }
     }
 }

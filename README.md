@@ -65,7 +65,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				- `ConfirmPassword` should have the `Compare` attribute with "Password"
 		- [ ] Create the Register View
 			- Inside the `Views/Account` folder add a new view `Register` (you will need to create the `Account` folder)
-			- `Register` should have a model of `RegisterViewModel`
+			- `Register.cshtml` should have a model of `RegisterViewModel` (You will need to include the namespace, `WishList.Models.AccountViewModels.RegisterViewModel`)
 			- Add the following HTML to the view (we're providing this to save you from needing to type it all yourself)
 				```
 				<h3>Register New User</h3>
@@ -76,7 +76,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 					<span></span>
 					<input />
 					<span></span>
-					<button type="sumbit">Register User</button>
+					<button type="submit">Register User</button>
 				</form>
 				```
 			- Add an attribute `asp-action` with a value of `"Register" to the `form` tag
@@ -90,13 +90,14 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- This action should have the `HttpGet` attribute
 			- This action should have the `AllowAnonymous` attribute
 			- This action should have no parameters
-			- This action should explicitly return the `Register` view.
+			- This action should return the `Register` view.
 		- [ ] Create an HttpPost Action Register in the AccountController
 			- This action should have the `HttpPost` attribute
+			- This action should have the `AllowAnonymous` attribute
 			- This action should accept a parameter of type `RegisterViewModel`
 			- This action should check if the `ModelState` is valid
-				- If so create the new user the redirect to action to the `Home.Index` action
 				- If not return the `Register` view with the model provided parameter as it's model
+				- If so create the new user using the `SignInManager.CreateUserAsync` method providing it avalid `ApplicationUser` and `string` (password) then `RedirectToAction` to the `Home.Index` action
 	- [ ] Create Login Functionality
 		- [ ] Create Login Model
 			- Create a `String` Property Email
