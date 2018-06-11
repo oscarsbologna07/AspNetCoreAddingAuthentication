@@ -186,7 +186,7 @@ namespace WishListTests
             addModelError.Invoke(modelState, new object[] { "Email", "The entered email is not a valid email address." });
 
             var badModelResults = method.Invoke(controller, new object[] { model }) as ViewResult;
-            Assert.True(badModelResults?.ViewName == "Register" || badModelResults?.ViewName == null, "`AccountController`'s Post `Register` method did not return the `Register` view when the `ModelState` was not valid.");
+            Assert.True(badModelResults != null && (badModelResults.ViewName == "Register" || badModelResults.ViewName == null), "`AccountController`'s Post `Register` method did not return the `Register` view when the `ModelState` was not valid.");
             Assert.True(badModelResults.Model == model, "`AccountController`'s Post `Register` method did not provide the invalid model when returning the `Register` view when the `ModelState` was not valid.");
         }
     }

@@ -96,7 +96,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- This action should have the `AllowAnonymous` attribute
 			- This action should accept a parameter of type `RegisterViewModel`
 			- This action should check if the `ModelState` is valid
-				- If not return the `Register` view with the model provided parameter as it's model
+				- If not return the `Register` view with the model provided in the parameter as it's model
 				- If so create the new user using the `SignInManager.CreateUserAsync` method providing it avalid `ApplicationUser` and `string` (password) then `RedirectToAction` to the `Home.Index` action
 	- [ ] Create Login Functionality
 		- [ ] Create Login Model
@@ -106,11 +106,10 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- Create a String Property `Password`
 				- `Password` should have the `Required` attribute
 				- `Password` should have the `DataType.Password` attribute
-				- `Password` should have a `StringLength` attribute of 100 with a `MinLength` of 8 characters
 		- [ ] Create a Login View in the `Views/Account` Folder
 			- Add the following HTML to the `Login` view
 				```
-				@model WishList.Models.LoginViemModel
+				@model WishList.Models.AccountViewModels.LoginViewModel
 				<h2>Log in</h2>
 				<form asp-action="Login" method="post">
 					<div>
@@ -130,21 +129,21 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				```
 		- [ ] Create an HttpPost Action Login in the AccountController
 			- This action should have the `HttpPost` attribute
-			- This action should have the `AllowAnnonymoust` attribute
+			- This action should have the `AllowAnonymous` attribute
 			- This action should have the `ValidateAntiForgeryToken` attribute
-			- This action should use the `async` keyword
-			- This action should have a return type of `Task<IActionResult>`
+			- This action should have a return type of `IActionResult`
 			- This action should accept a parameter of type `LoginViewModel`
-			- This should use `SignInManager`'s `PasswordSignInAsync` method to attempt to login the user (Note: you will need to `await` or get the `Result` from async methods to see the results)
-				- If the result is `Succeeded` return a `RedirectToAction` to the `Wishlist.Index` action
+			- This action should check if the `ModelState` is valid
+				- If not return the `Login` view with the model provided in the parameter as it's model
+			- This should use `SignInManager`'s `PasswordSignInAsync` method to attempt to login the user (Note: you will need to check the `Result` property to see the results, pass `false` for the 3rd and 4th parameters)
+				- If the result is `Succeeded` return a `RedirectToAction` to the `Item.Index` action
 				- Otherwise use `ModelState`'s `AddModelError` with a key of `string.Empty` and an `errorMessage` of "Invalid login attempt."
 	- [ ] Create Logout Functionality
 		- [ ] Create an HttpPost Action Logout in the AcctionController
 			- This action should have the `HttpPost` attribute
 			- This action should have the `ValidateAntiForgeryToken` attribute
-			- This action should use the `async` keyword
-			- This action should have a return type of `Task<IActionResult>`
-			- This action should use `SignInManager`'s `SignOutAsync` method (Note: you will want to `await` this method to ensure the sign out completes)
+			- This action should have a return type of `IActionResult`
+			- This action should use `SignInManager`'s `SignOutAsync` method
 			- This should return a `RedirectToAction` to the `Home.Index` action
 	- [ ] Update Item Model to Include UserId
 		- [ ] Add string UserId property to Item model

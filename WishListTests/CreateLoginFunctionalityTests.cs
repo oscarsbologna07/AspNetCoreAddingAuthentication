@@ -5,8 +5,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Moq;
 using WishList.Models;
 using Xunit;
 
@@ -36,10 +39,9 @@ namespace WishListTests
             Assert.True(passwordProperty != null, "`LoginViewModel` does not appear to contain a `public` `string` property `Password`.");
             Assert.True(passwordProperty.PropertyType == typeof(string), "`LoginViewModel` has a property `Password` but it is not of type `string`.");
             Assert.True(passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(RequiredAttribute)) != null, "`LoginViewModel` has a property `Password` but it doesn't appear to have a `Required` attribute.");
-            Assert.True(passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(StringLengthAttribute)) != null, "`LoginViewModel` has a property `Password` but it doesn't appear to have a `StringLength` attribute of 100, with a minimum length of 8");
-            // need to verify string length's max and minlength
-            Assert.True(passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute)) != null, "`LoginViewModel` has a property `Password` but it doesn't appear to have a `DataType` attribute set to `Password`.");
-            // need to verify datatype is set to password
+            var dataType = passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute));
+            Assert.True(dataType != null, "`LoginViewModel` has a property `Password` but it doesn't appear to have a `DataType` attribute set to `Password`.");
+            Assert.True(dataType.ConstructorArguments.Count == 1 && (int)dataType.ConstructorArguments[0].Value == 11, "`LoginViewModel` has a property `Password` and it has a `DataType` attribute but it's not set to `DataType.Password`.");
         }
 
         [Fact(DisplayName = "Create Login View @create-login-view")]
@@ -47,11 +49,17 @@ namespace WishListTests
         {
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Views" + Path.DirectorySeparatorChar + "Account" + Path.DirectorySeparatorChar + "Login.cshtml";
             Assert.True(File.Exists(filePath), @"`Login.cshtml` was not found in the `Views\Account` folder.");
-            // need to verify contents were copied correctly
+
+            string file;
+            using (var streamReader = new StreamReader(filePath))
+            {
+                file = streamReader.ReadToEnd();
+            }
+            Assert.True(file.Contains("LoginViewModel"),"`Login.cshtml` was found, but does not appear to contain the provided view (copy and paste the login view from the associated task in the `readme.md` file)");
         }
 
         [Fact(DisplayName = "Create Login Action @create-login-action")]
-        public async void CreateHttpPostLoginActionTest()
+        public void CreateHttpPostLoginActionTest()
         {
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
             Assert.True(File.Exists(filePath), @"`AccountController.cs` was not found in the `Controllers` folder.");
@@ -70,28 +78,51 @@ namespace WishListTests
 
             var method = accountController.GetMethod("Login", new Type[] { loginViewModel });
             Assert.True(method != null, "`AccountController` did not contain a `Login` method with a parameter of type `LoginViewModel`.");
-            Assert.True(method.ReturnType == typeof(IActionResult), "`AccountController`'s Post `Login` method did not have a return type of `IActionResult`");
+            Assert.True(method.ReturnType == typeof(IActionResult), "`AccountController`'s `Login` method did not have a return type of `IActionResult`.");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpPostAttribute)) != null, "`AccountController``s `Login` method did not have the `HttpPost` attribute.");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AllowAnonymousAttribute)) != null, "`AccountController`'s `Login` method did not have the `AllowAnonymous` attribute.");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(ValidateAntiForgeryTokenAttribute)) != null, "`AccountController`'s `Login` method did not have the `ValidateAntiForgeryToken` attribute.");
-            // Note: Attribute AsyncStateMachine can be used to test for the presence of the `async` keyword as it should only exist on methods with the `async` keyword
-            Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AsyncStateMachineAttribute)) != null, "`AccountController`'s `Login` method did not have the keyword `async` in it's signature.");
-            Assert.True(method.ReturnType == typeof(Task<IActionResult>), "`AccountController`'s `Login` method did not have a return type of `Task<IActionResult>`.");
-
-            var userManeger = new UserManager<ApplicationUser>(null, null, null, null, null, null, null, null, null);
-            var signInManager = new SignInManager<ApplicationUser>(null, null, null, null, null, null);
-            var controller = Activator.CreateInstance(accountController, new object[] { userManeger, signInManager });
+            
+            var userStore = new Mock<IUserPasswordStore<ApplicationUser>>();
+            var contextAccessor = new Mock<IHttpContextAccessor>();
+            var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
+            var userManager = new Mock<UserManager<ApplicationUser>>(userStore.Object, null, null, null, null, null, null, null, null);
+            var signInManager = new Mock<SignInManager<ApplicationUser>>(userManager.Object, contextAccessor.Object, claimsFactory.Object, null, null, null);
+            signInManager.Setup(e => e.PasswordSignInAsync(It.IsAny<string>(), "failure", It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(new Microsoft.AspNetCore.Identity.SignInResult() { }).Verifiable();
+            signInManager.Setup(e => e.PasswordSignInAsync(It.IsAny<string>(), "success", It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
+            var controller = Activator.CreateInstance(accountController, new object[] { userManager.Object, signInManager.Object });
             var model = Activator.CreateInstance(loginViewModel, null);
             loginViewModel.GetProperty("Email").SetValue(model, "Valid@Email.com");
-            loginViewModel.GetProperty("Password").SetValue(model, "bad_password");
+            loginViewModel.GetProperty("Password").SetValue(model, "failure");
 
-            var badResults = (ViewResult)method.Invoke(controller, new object[] { model });
-            Assert.True(badResults.ViewName == "Login", "`AccountController`'s `Login` method did not return the `Login` view when the login failed.");
+            var modelState = accountController.GetProperty("ModelState").GetValue(controller);
+            var addModelError = typeof(ModelStateDictionary).GetMethod("AddModelError", new Type[] { typeof(string), typeof(string) });
+            addModelError.Invoke(modelState, new object[] { "Email", "The entered email is not a valid email address." });
+
+            var invalidModelResults = method.Invoke(controller, new object[] { model }) as ViewResult;
+            Assert.True(invalidModelResults != null && (invalidModelResults.ViewName == "Login" || invalidModelResults.ViewName == null), "`AccountController`'s Post `Login` method did not return the `Login` view when the `ModelState` was not valid.");
+            Assert.True(invalidModelResults.Model == model, "`AccountController`'s Post `Login` method did not provide the invalid model when returning the `Register` view when the `ModelState` was not valid.");
+
+            var clearModelState = typeof(ModelStateDictionary).GetMethod("Clear");
+            clearModelState.Invoke(modelState, new object[] { });
+
+            var badResults = method.Invoke(controller, new object[] { model }) as ViewResult;
+            try
+            {
+                signInManager.Verify();
+            }
+            catch (MockException)
+            {
+                Assert.True(false, "`AccountController`'s Post `Login` action did not attempt to login in the user using `PasswordSignInAsync`.");
+            }
+            Assert.True(badResults != null && (badResults.ViewName == "Login" || badResults.ViewName == null), "`AccountController`'s `Login` method did not return the `Login` view when the login failed.");
             Assert.True(badResults.Model == model, "`AccountController`'s `Login` method did not provide the invalid model when returning the `Login` view when login failed.");
 
-            loginViewModel.GetProperty("Password").SetValue(model, "!4oOauidT_5");
-            var goodResults = await (dynamic)method.Invoke(controller, new object[] { model });
-            Assert.True(goodResults.ControllerName == "Home" && goodResults.ActionName == "Index", "`AccountController`'s `Login` method did not return a `RedirectToAction` to the `Home.Index` action when login was successful.");
+            clearModelState.Invoke(modelState, new object[] { });
+
+            loginViewModel.GetProperty("Password").SetValue(model, "success");
+            var goodResults = method.Invoke(controller, new object[] { model }) as RedirectToActionResult;
+            Assert.True(goodResults != null && goodResults.ControllerName == "Item" && goodResults.ActionName == "Index", "`AccountController`'s `Login` method did not return a `RedirectToAction` to the `Item.Index` action when login was successful.");
         }
     }
 }
