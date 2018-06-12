@@ -81,6 +81,14 @@ namespace WishListTests
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml`'s `form` tag didn't contain an attribute `asp-action` set to ""Register"".");
 
+            pattern = @"<\s*?div\s*.*?asp-validation-summary\s*?=\s*?""All""\s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `div` tag with an attribute `asp-validation-summary` set to ""All"".");
+
+            pattern = @"<\s*?label\s*.*?asp-for\s*?=\s*?""Email""\s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `label` tag with an attribute `asp-for` set to ""Email"".");
+
             pattern = @"<\s*?input\s*.*?asp-for\s*?=\s*?""Email""\s*?.*?[/]>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""Email"".");
@@ -89,6 +97,10 @@ namespace WishListTests
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""Email"".");
 
+            pattern = @"<\s*?label\s*.*?asp-for\s*?=\s*?""Password""\s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `label` tag with an attribute `asp-for` set to ""Password"".");
+
             pattern = @"<\s*?input\s*.*?asp-for\s*?=\s*?""Password""\s*?.*?[/]>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""Password"".");
@@ -96,6 +108,10 @@ namespace WishListTests
             pattern = @"<\s*?span\s*.*?asp-validation-for\s*?=\s*?""Password""\s*?.*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""Password"".");
+
+            pattern = @"<\s*?label\s*.*?asp-for\s*?=\s*?""ConfirmPassword""\s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `label` tag with an attribute `asp-for` set to ""ConfirmPassword"".");
 
             pattern = @"<\s*?input\s*.*?asp-for\s*?=\s*?""ConfirmPassword""\s*?.*?[/]>";
             rgx = new Regex(pattern);
@@ -162,14 +178,35 @@ namespace WishListTests
             var contextAccessor = new Mock<IHttpContextAccessor>();
             var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
             var userManager = new Mock<UserManager<ApplicationUser>>(userStore.Object, null, null, null, null, null, null, null, null);
-            userManager.Setup(e => e.CreateAsync(It.IsAny<ApplicationUser>(),It.IsAny<string>())).ReturnsAsync(new IdentityResult()).Verifiable();
+            userManager.Setup(e => e.CreateAsync(It.IsAny<ApplicationUser>(),"success")).ReturnsAsync(IdentityResult.Success).Verifiable();
+            userManager.Setup(e => e.CreateAsync(It.IsAny<ApplicationUser>(), "failure")).ReturnsAsync(IdentityResult.Failed(new IdentityError[] { new IdentityError { Code = string.Empty, Description = "Bad Password" } }));
             var signInManager = new Mock<SignInManager<ApplicationUser>>(userManager.Object, contextAccessor.Object, claimsFactory.Object, null, null, null);
             var controller = Activator.CreateInstance(accountController, new object[] { userManager.Object, signInManager.Object });
             var model = Activator.CreateInstance(registerViewModel, null);
             registerViewModel.GetProperty("Email").SetValue(model, "Test@Test.com");
-            registerViewModel.GetProperty("Password").SetValue(model, "Aeoi89a8#$@aou");
-            registerViewModel.GetProperty("ConfirmPassword").SetValue(model, "Aeoi89a8#$@aou");
+            registerViewModel.GetProperty("Password").SetValue(model, "failure");
+            registerViewModel.GetProperty("ConfirmPassword").SetValue(model, "failure");
 
+            var modelState = accountController.GetProperty("ModelState").GetValue(controller);
+            var addModelError = typeof(ModelStateDictionary).GetMethod("AddModelError", new Type[] { typeof(string), typeof(string) });
+            addModelError.Invoke(modelState, new object[] { "Email", "The entered email is not a valid email address." });
+
+            var badModelResults = method.Invoke(controller, new object[] { model }) as ViewResult;
+            Assert.True(badModelResults != null && (badModelResults.ViewName == "Register" || badModelResults.ViewName == null), "`AccountController`'s Post `Register` method did not return the `Register` view when the `ModelState` was not valid.");
+            Assert.True(badModelResults.Model == model, "`AccountController`'s Post `Register` method did not provide the invalid model when returning the `Register` view when the `ModelState` was not valid.");
+
+            var clearModelError = typeof(ModelStateDictionary).GetMethod("Clear", new Type[] { });
+            clearModelError.Invoke(modelState, new object[] { });
+
+
+            var badPasswordResults = method.Invoke(controller, new object[] { model }) as ViewResult;
+            Assert.True(badPasswordResults != null && (badPasswordResults.ViewName == "Register" || badPasswordResults.ViewName == null),"`AccountController`'s Post `Register` action did not return the `Register` view when `CreateAsync` failed to create the user");
+            Assert.True(badPasswordResults.ViewData != null && badPasswordResults.ViewData.ModelState != null && badPasswordResults.ViewData.ModelState.ErrorCount == 1, "`AccountController`'s Post `Register` action did not add errors from the `Errors` property of the returned `IdentityResult` from  `CreateAsync` when it failed to create the user");
+
+            clearModelError.Invoke(modelState, new object[] { });
+
+            registerViewModel.GetProperty("Password").SetValue(model, "success");
+            registerViewModel.GetProperty("ConfirmPassword").SetValue(model, "success");
             var goodModelResults = method.Invoke(controller, new object[] { model }) as RedirectToActionResult;
             try
             {
@@ -180,14 +217,6 @@ namespace WishListTests
                 Assert.True(false, "`AccountController`'s Post `Register` action did not create a new user when the model was valid.");
             }
             Assert.True(goodModelResults != null && goodModelResults.ControllerName == "Home" && goodModelResults.ActionName == "Index", "`AccountController`'s Post `Register` method did not return a `RedirectToAction` to the `Home.Index` action when a valid model was submitted.");
-
-            var modelState = accountController.GetProperty("ModelState").GetValue(controller);
-            var addModelError = typeof(ModelStateDictionary).GetMethod("AddModelError", new Type[] { typeof(string), typeof(string) });
-            addModelError.Invoke(modelState, new object[] { "Email", "The entered email is not a valid email address." });
-
-            var badModelResults = method.Invoke(controller, new object[] { model }) as ViewResult;
-            Assert.True(badModelResults != null && (badModelResults.ViewName == "Register" || badModelResults.ViewName == null), "`AccountController`'s Post `Register` method did not return the `Register` view when the `ModelState` was not valid.");
-            Assert.True(badModelResults.Model == model, "`AccountController`'s Post `Register` method did not provide the invalid model when returning the `Register` view when the `ModelState` was not valid.");
         }
     }
 }

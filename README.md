@@ -70,20 +70,39 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				```
 				<h3>Register New User</h3>
 				<form>
-					<input />
-					<span></span>
-					<input />
-					<span></span>
-					<input />
-					<span></span>
-					<button type="submit">Register User</button>
+					<div class="text-danger"></div>
+					<div>
+						<label></label>
+						<br/>
+						<input />
+						<span></span>
+					</div>
+					<div>
+						<label></label>
+						<br/>
+						<input />
+						<span></span>
+					</div>
+					<div>
+						<label></label>
+						<br/>
+						<input />
+						<span></span>
+					</div>
+					<div>
+						<button type="submit">Register User</button>
+					</div>
 				</form>
 				```
 			- Add an attribute `asp-action` with a value of `"Register" to the `form` tag
+			- Add an attribute `asp-validation-summary` with a value of `"All"` for the `div` tag with an attribute `class` of value `"text-danger"`
+			- Add an attribute `asp-for` with a value of `"Email"` to the first `label` tag
 			- Add an attribute `asp-for` with a value of `"Email"` to the first `input` tag
 			- Add an attribute `asp-validation-for` with a value of `"Email"` to the first `span` tag
+			- Add an attribute `asp-for` with a value of `"Password"` to the second `label` tag
 			- Add an attribute `asp-for` with a value of `"Password"` to the second `input` tag
 			- Add an attribute `asp-validation-for` with a value of `"Password"` to the second `span` tag
+			- Add an attribute `asp-for` with a value of `"ConfirmPassword"` to the third `label` tag
 			- Add an attribute `asp-for` with a value of `"ConfirmPassword"` to the third `input` tag
 			- Add an attribute `asp-validation-for` with a value of `"ConfirmPassword"` to the third `span` tag
 		- [ ] Create an HttpGet Action Register in the AccountController
@@ -97,7 +116,10 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- This action should accept a parameter of type `RegisterViewModel`
 			- This action should check if the `ModelState` is valid
 				- If not return the `Register` view with the model provided in the parameter as it's model
-				- If so create the new user using the `SignInManager.CreateUserAsync` method providing it avalid `ApplicationUser` and `string` (password) then `RedirectToAction` to the `Home.Index` action
+			- This action should create the new user using the `SignInManager.CreateUserAsync` method providing it a valid `ApplicationUser` (you will need to set the `User` and `Email` properties to the `Email` from the `RegisterViewModel`) and a `string`  which you'll set the the `Password` property from the `RegisterViewModel`
+			- Check the `Result` property from the `CreateAsync` call if `Result.Success`
+				- If `Result.Success` is `false` foreach error in `Result.Errors` use `ModelState.AddModelError` to add an error with a the first parameter of`"Password"` and second with the value of the error's `Description` property.
+				- If `Result.Success` is `true` `RedirectToAction` to `Home.Index`
 	- [ ] Create Login Functionality
 		- [ ] Create Login Model
 			- Create a `String` Property Email
@@ -112,9 +134,10 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				@model WishList.Models.AccountViewModels.LoginViewModel
 				<h2>Log in</h2>
 				<form asp-action="Login" method="post">
+					<div asp-validation-summary="All" class="text-danger"></div>
 					<div>
 						<label asp-for="Email"></label>
-						<input asp-for="Email"/>
+						<input asp-for="Email" />
 						<span asp-validation-for="Email"></span>
 					</div>
 					<div>
@@ -127,6 +150,11 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 					</div>
 				</form>
 				```
+		- [ ] Create an HttpGet Action Login in the AccountController
+			- This action should have the `HttpGet` attribute
+			- This action should have the `AllowAnonymous` attribute
+			- This action should have no parameters
+			- This action should return the `Login` view.
 		- [ ] Create an HttpPost Action Login in the AccountController
 			- This action should have the `HttpPost` attribute
 			- This action should have the `AllowAnonymous` attribute
@@ -145,10 +173,13 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- This action should have a return type of `IActionResult`
 			- This action should use `SignInManager`'s `SignOutAsync` method
 			- This should return a `RedirectToAction` to the `Home.Index` action
-	- [ ] Update Item Model to Include UserId
-		- [ ] Add string UserId property to Item model
+	- [ ] Create Relationship Between Item and ApplicationUser Models
+		- [ ] Add a `virtual` property of type `ApplicationUser` named `User` to the `Item` model
+		- [ ] Add a `virtual` property of type `ICollection<Item>` named `Items` to the `ApplicationUser` model
 	- [ ] Update ItemController Actions to consider UserId
 		- [ ] Add the `Authorize` attribute to the `ItemController` class
+		- [ ] Add a new `private` `readonly` property of type `UserManager<ApplicationUser>` named `_userManager`
+		- [ ] Update the `ItemController`'s constructor to accept a second parameter of type `UserManager<ApplicationUser>` and within the costructor set `_userManager` to the provided `UserManager<ApplicationUser>` paramater.
 		- [ ] Update the `ItemController.Index` action
 			- Change the `_context.Items.ToList();` to include a `Where` call that only gets items with the matching userId.
 		- [ ] Update `ItemController.Create` (HttpPost action) action

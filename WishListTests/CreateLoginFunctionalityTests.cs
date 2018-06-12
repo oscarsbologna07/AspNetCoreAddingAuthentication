@@ -58,7 +58,35 @@ namespace WishListTests
             Assert.True(file.Contains("LoginViewModel"),"`Login.cshtml` was found, but does not appear to contain the provided view (copy and paste the login view from the associated task in the `readme.md` file)");
         }
 
-        [Fact(DisplayName = "Create Login Action @create-login-action")]
+        [Fact(DisplayName = "Create HttpGet Login Action @create-httpget-login-action")]
+        public void CreateHttpGetLoginActionTest()
+        {
+            var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
+            Assert.True(File.Exists(filePath), @"`AccountController.cs` was not found in the `Controllers` folder.");
+
+            var accountController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                                     from type in assembly.GetTypes()
+                                     where type.FullName == "WishList.Controllers.AccountController"
+                                     select type).FirstOrDefault();
+            Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
+            var method = accountController.GetMethod("Login", new Type[] { });
+            Assert.True(method != null, "`AccountController` did not contain a `public` `Login` method with no parameters");
+            Assert.True(method.ReturnType == typeof(IActionResult), "`AccountController`'s Get `Login` method did not have a return type of `IActionResult`");
+            Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpGetAttribute)) != null, "`AccountController` did not contain a `Login` method with an `HttpGet` attribute");
+            Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AllowAnonymousAttribute)) != null, "`AccountController`'s Get `Login` method did not have the `AllowAnonymous` attribute");
+
+            var userStore = new Mock<IUserStore<ApplicationUser>>();
+            var contextAccessor = new Mock<IHttpContextAccessor>();
+            var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
+            var userManager = new UserManager<ApplicationUser>(userStore.Object, null, null, null, null, null, null, null, null);
+            var signInManager = new SignInManager<ApplicationUser>(userManager, contextAccessor.Object, claimsFactory.Object, null, null, null);
+            var controller = Activator.CreateInstance(accountController, new object[] { userManager, signInManager });
+            var results = method.Invoke(controller, null) as ViewResult;
+            Assert.True(results != null, "`AccountController`'s HttpGet `Login` action did not return a the `Login` view.");
+            Assert.True(results.ViewName == "Login" || results.ViewName == null, "`AccountController`'s HttpGet `Login` action did not return a the `Login` view.");
+        }
+
+        [Fact(DisplayName = "Create HttpPost Login Action @create-httppost-login-action")]
         public void CreateHttpPostLoginActionTest()
         {
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";

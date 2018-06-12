@@ -15,7 +15,7 @@ namespace WishListTests
     public class CreateLogoutFunctionalityTests
     {
         [Fact(DisplayName = "Create Logout Action @create-logout-action")]
-        public async void CreateHttpPostLogoutActionTest()
+        public void CreateHttpPostLogoutActionTest()
         {
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
             Assert.True(File.Exists(filePath), @"`AccountController.cs` was not found in the `Controllers` folder.");
