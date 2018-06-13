@@ -27,7 +27,7 @@ namespace WishListTests
             Assert.True(userProperty.GetMethod.IsVirtual, "`Item` contained a property `User` but it didn't use the `virtual` keyword.");
         }
 
-        [Fact(DisplayName = "Update Item Model @update-item-model")]
+        [Fact(DisplayName = "Update ApplicationUser Model @update-applicationuser-model")]
         public void UpdateApplicationUserModel()
         {
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Models" + Path.DirectorySeparatorChar + "ApplicationUser.cs";

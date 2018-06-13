@@ -44,14 +44,14 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 		- [ ] Create new controller `AccountController` in the `Controllers` folder
 			- The AccountController class should have the `Authorize` attribute (you will need a `using` directive for `Microsoft.AspNetCore.Authorization`)
 			- This should inherit the `Controller` class (you will need a `using` directive for `Microsoft.AspNetCore.Mvc`)
-		- [ ] Create private fields
+		- [ ] Create private fields in the `AccountController` class
 			- This should have a private readonly field of type `UserManager<ApplicationUser>` named `_userManager` (you will need a `using` directives for `WishList.Models` and `Microsoft.AspNetCore.Identity`)
 			- This should have a private readonly field of type `SignInManager<ApplicationUser>` named `_signInManager`
-		- [ ] Create `AccountController` Constructor
+		- [ ] Create a constructor in the `AccountController` class
 			- This constructor should accept two parameters, the first of type `UserManager<ApplicationUser>`, the second of type `signInManager<ApplicationUser>`
 			- This constructor should set each of the private readonly properties using the parameter of the same type
 	- [ ] Create Register Functionality
-		- [ ] Create Register Model
+		- [ ] Create RegisterViewModel class
 			- Inside the `Models/AccountViewModels` folder create a new model `RegisterViewModel` (You will need to create the AccountViewModels folder)
 			- Create a `String` Property Email
 				- Email should have the Required attribute (you will need to add a `using` directive for `System.ComponentModel.DataAnnotations`)
@@ -105,12 +105,12 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- Add an attribute `asp-for` with a value of `"ConfirmPassword"` to the third `label` tag
 			- Add an attribute `asp-for` with a value of `"ConfirmPassword"` to the third `input` tag
 			- Add an attribute `asp-validation-for` with a value of `"ConfirmPassword"` to the third `span` tag
-		- [ ] Create an HttpGet Action Register in the AccountController
+		- [ ] Create an `HttpGet` action `Register` in the `AccountController` class
 			- This action should have the `HttpGet` attribute
 			- This action should have the `AllowAnonymous` attribute
 			- This action should have no parameters
 			- This action should return the `Register` view.
-		- [ ] Create an HttpPost Action Register in the AccountController
+		- [ ] Create an `HttpPost` action `Register` in the `AccountController` class
 			- This action should have the `HttpPost` attribute
 			- This action should have the `AllowAnonymous` attribute
 			- This action should accept a parameter of type `RegisterViewModel`
@@ -118,17 +118,17 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				- If not return the `Register` view with the model provided in the parameter as it's model
 			- This action should create the new user using the `SignInManager.CreateUserAsync` method providing it a valid `ApplicationUser` (you will need to set the `User` and `Email` properties to the `Email` from the `RegisterViewModel`) and a `string`  which you'll set the the `Password` property from the `RegisterViewModel`
 			- Check the `Result` property from the `CreateAsync` call if `Result.Success`
-				- If `Result.Success` is `false` foreach error in `Result.Errors` use `ModelState.AddModelError` to add an error with a the first parameter of`"Password"` and second with the value of the error's `Description` property.
+				- If `Result.Success` is `false` foreach error in `Result.Errors` use `ModelState.AddModelError` to add an error with a the first parameter of`"Password"` and second with the value of the error's `Description` property. Then return the `Register` view with the model provided by `Register`'s the parameter.
 				- If `Result.Success` is `true` `RedirectToAction` to `Home.Index`
 	- [ ] Create Login Functionality
-		- [ ] Create Login Model
+		- [ ] Create `LoginViewModel` class in the `Models\AccountViewModels` folder
 			- Create a `String` Property Email
 				- Email should have the Required attribute
 				- Email should have the EmailAddress attribute
 			- Create a String Property `Password`
 				- `Password` should have the `Required` attribute
 				- `Password` should have the `DataType.Password` attribute
-		- [ ] Create a Login View in the `Views/Account` Folder
+		- [ ] Create a `Login.cshtml` view in the `Views/Account` folder
 			- Add the following HTML to the `Login` view
 				```
 				@model WishList.Models.AccountViewModels.LoginViewModel
@@ -149,13 +149,14 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 						<button type="submit">Log in</button>
 					</div>
 				</form>
+				<a asp-action="Register">Register new account</a>
 				```
-		- [ ] Create an HttpGet Action Login in the AccountController
+		- [ ] Create an `HttpGet` action `Login` in the `AccountController`
 			- This action should have the `HttpGet` attribute
 			- This action should have the `AllowAnonymous` attribute
 			- This action should have no parameters
 			- This action should return the `Login` view.
-		- [ ] Create an HttpPost Action Login in the AccountController
+		- [ ] Create an `HttpPost` action `Login` in the `AccountController`
 			- This action should have the `HttpPost` attribute
 			- This action should have the `AllowAnonymous` attribute
 			- This action should have the `ValidateAntiForgeryToken` attribute
@@ -165,9 +166,9 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				- If not return the `Login` view with the model provided in the parameter as it's model
 			- This should use `SignInManager`'s `PasswordSignInAsync` method to attempt to login the user (Note: you will need to check the `Result` property to see the results, pass `false` for the 3rd and 4th parameters)
 				- If the result is `Succeeded` return a `RedirectToAction` to the `Item.Index` action
-				- Otherwise use `ModelState`'s `AddModelError` with a key of `string.Empty` and an `errorMessage` of "Invalid login attempt."
+				- Otherwise use `ModelState`'s `AddModelError` with a key of `string.Empty` and an `errorMessage` of `"Invalid login attempt."`
 	- [ ] Create Logout Functionality
-		- [ ] Create an HttpPost Action Logout in the AcctionController
+		- [ ] `Create` an `HttpPost` action `Logout` in the `AccountController`
 			- This action should have the `HttpPost` attribute
 			- This action should have the `ValidateAntiForgeryToken` attribute
 			- This action should have a return type of `IActionResult`
@@ -176,14 +177,14 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 	- [ ] Create Relationship Between Item and ApplicationUser Models
 		- [ ] Add a `virtual` property of type `ApplicationUser` named `User` to the `Item` model
 		- [ ] Add a `virtual` property of type `ICollection<Item>` named `Items` to the `ApplicationUser` model
-	- [ ] Update ItemController Actions to consider UserId
+	- [ ] Update ItemController actions to consider user
 		- [ ] Add the `Authorize` attribute to the `ItemController` class
-		- [ ] Add a new `private` `readonly` property of type `UserManager<ApplicationUser>` named `_userManager`
+		- [ ] Add a new `private` `readonly` field of type `UserManager<ApplicationUser>` named `_userManager`
 		- [ ] Update the `ItemController`'s constructor to accept a second parameter of type `UserManager<ApplicationUser>` and within the costructor set `_userManager` to the provided `UserManager<ApplicationUser>` paramater.
-		- [ ] Update the `ItemController.Index` action
-			- Change the `_context.Items.ToList();` to include a `Where` call that only gets items with the matching userId.
-		- [ ] Update `ItemController.Create` (HttpPost action) action
-			- Before adding the Item to set the UserId to the logged in user's Id (using the `SignInManager`'s `GetUserId` method)
+		- [ ] Update the `ItemController.Index` action to only return items with associated with the currently logged in user.
+			- Change the `_context.Items.ToList();` to include a `Where` call that only gets items with the matching `User.Id`. (You can get the current logged in user using `UserManager.GetUserAsync(HttpContext.User)`)
+		- [ ] Update the `HttpPost` `ItemController.Create` action to add the logged in User to the `Item`
+			- Before adding the Item to set the UserId to the logged in user's Id (You can get the current logged in user using `UserManager.GetUserAsync(HttpContext.User)`)
 	
 ## What Now?
 
