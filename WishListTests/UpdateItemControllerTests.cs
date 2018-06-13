@@ -100,7 +100,7 @@ namespace WishListTests
             var controller = Activator.CreateInstance(itemController, new object[] { applicationDbContext, userManager });
 
             var results = method.Invoke(controller, new object[] { }) as ViewResult;
-            Assert.True(results.ViewName == "Login", "`ItemController`'s `Index` method did not return the `Index` view with a model of only items with the logged in User's Id.");
+            Assert.True(results != null && results.ViewName == "Login", "`ItemController`'s `Index` method did not return the `Index` view with a model of only items with the logged in User's Id.");
             Assert.True(results.Model != null, "`ItemController`'s `Index` method did return the `Index` view with a model of only items with the logged in User's Id.");
             // verify results contain only correct items
         }
