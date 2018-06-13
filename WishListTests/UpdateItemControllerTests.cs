@@ -116,7 +116,7 @@ namespace WishListTests
                                   select type).FirstOrDefault();
             Assert.True(itemController != null, "A `public` class `ItemController` was not found in the `WishList.Controllers` namespace.");
 
-            var method = itemController.GetMethod("Create", new Type[] { });
+            var method = itemController.GetMethod("Create", new Type[] { typeof(Item) });
             Assert.True(method != null, "`ItemController` did not contain a `Create` method did you remove or rename it?");
             var constructor = itemController.GetConstructors().FirstOrDefault();
             var parameters = constructor.GetParameters();
@@ -128,9 +128,38 @@ namespace WishListTests
             var applicationDbContext = new ApplicationDbContext(optionsBuilder.Options);
             var controller = Activator.CreateInstance(itemController, new object[] { applicationDbContext, userManager });
 
-            var results = method.Invoke(controller, new object[] { }) as ViewResult;
+            var results = method.Invoke(controller, new object[] { new Item() { Id = 1, Description = "Test" } }) as ViewResult;
             Assert.True(results != null, "`ItemController`'s `Create` method did not run successfully, please run locally and verify results.");
             // Verify this sets the item / user relationship
+        }
+
+        [Fact(DisplayName = "Update Delete Action @update-delete-action")]
+        public void UpdateDeleteActionTest()
+        {
+            var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "ItemController.cs";
+            Assert.True(File.Exists(filePath), @"`ItemController.cs` was not found in the `Controllers` folder.");
+
+            var itemController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                                  from type in assembly.GetTypes()
+                                  where type.FullName == "WishList.Controllers.ItemController"
+                                  select type).FirstOrDefault();
+            Assert.True(itemController != null, "A `public` class `ItemController` was not found in the `WishList.Controllers` namespace.");
+
+            var method = itemController.GetMethod("Delete", new Type[] { typeof(int) });
+            Assert.True(method != null, "`ItemController` did not contain a `Delete` method did you remove or rename it?");
+            var constructor = itemController.GetConstructors().FirstOrDefault();
+            var parameters = constructor.GetParameters();
+            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager<ApplicationUser>`.");
+
+            var userStore = new Mock<IUserStore<ApplicationUser>>();
+            var userManager = new UserManager<ApplicationUser>(userStore.Object, null, null, null, null, null, null, null, null);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            var applicationDbContext = new ApplicationDbContext(optionsBuilder.Options);
+            var controller = Activator.CreateInstance(itemController, new object[] { applicationDbContext, userManager });
+
+            var results = method.Invoke(controller, new object[] { 1 }) as ViewResult;
+            Assert.True(results != null, "`ItemController`'s `Delete` method did not run successfully, please run locally and verify results.");
+            // Verify this doesn't remove the item when the user doesn't match
         }
     }
 }
