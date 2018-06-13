@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -31,7 +30,7 @@ namespace WishListTests
             Assert.True(accountController.CustomAttributes.Any(e => e.AttributeType == typeof(AuthorizeAttribute)), "`AccountController` didn't have an `Authorize` attribute.");
         }
 
-        [Fact(DisplayName = "Create Private Fields @create-private-fields")]
+        [Fact(DisplayName = "Create Private Fields For AccountController @create-private-fields-for-accountcontroller")]
         public void CreatePrivateFieldsTest()
         {
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
