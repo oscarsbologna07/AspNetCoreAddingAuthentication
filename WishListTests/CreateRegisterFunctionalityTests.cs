@@ -1,11 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Moq;
+using WishList.Controllers;
 using WishList.Models;
 using Xunit;
 
@@ -35,18 +42,23 @@ namespace WishListTests
             Assert.True(passwordProperty != null, "`RegisterViewModel` does not appear to contain a `public` `string` property `Password`.");
             Assert.True(passwordProperty.PropertyType == typeof(string), "`RegisterViewModel` has a property `Password` but it is not of type `string`.");
             Assert.True(passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(RequiredAttribute)) != null, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `Required` attribute.");
-            Assert.True(passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(StringLengthAttribute)) != null, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `StringLength` attribute of 100, with a minimum length of 8");
-            // need to verify string length's max and minlength
-            Assert.True(passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute)) != null, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `DataType` attribute set to `Password`.");
-            // need to verify datatype is set to password
+            var stringLength = passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(StringLengthAttribute));
+            Assert.True(stringLength != null, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `StringLength` attribute of 100, with a minimum length of 8");
+            Assert.True(stringLength.ConstructorArguments.Count == 1 && (int)stringLength.ConstructorArguments[0].Value == 100, "`RegisterViewModel` has a property `Password`and a `StringLength` attribute, but it's `maxLength` isn't set to 100.");
+            Assert.True(stringLength.NamedArguments.Count == 1 && (int)stringLength.NamedArguments[0].TypedValue.Value == 8, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `StringLength` attribute of 100, but it's minimum length was not set to 8");
+            var dataType = passwordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute));
+            Assert.True(dataType != null, "`RegisterViewModel` has a property `Password` but it doesn't appear to have a `DataType` attribute set to `Password`.");
+            Assert.True(dataType.ConstructorArguments.Count == 1 && (int)dataType.ConstructorArguments[0].Value == 11, "`RegisterViewModel` has a property `Password` and it has a `DataType` attribute but it's not set to `DataType.Password`.");
 
             var confirmPasswordProperty = registerViewModel.GetProperty("ConfirmPassword");
             Assert.True(confirmPasswordProperty != null, "`RegisterViewModel` does not appear to contain a `public` `string` property `ConfirmPassword`.");
             Assert.True(confirmPasswordProperty.PropertyType == typeof(string), "`RegisterViewModel` has a property `ConfirmPassword` but it is not of type `string`.");
-            Assert.True(confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute)) != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appear to have a `DataType` attribute set to `Password`.");
-            // need to verify datatype is set to password
-            Assert.True(confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(CompareAttribute)) != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appear to have a `Compare` attribute set to `Password`.");
-            // need to verify compare is set to password
+            dataType = confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(DataTypeAttribute));
+            Assert.True(dataType != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appear to have a `DataType` attribute set to `DataType.Password`.");
+            Assert.True(dataType.ConstructorArguments.Count == 1 && (int)dataType.ConstructorArguments[0].Value == 11, "`RegisterViewModel` has a property `ConfirmPassword` and it has a `DataType` attribute but it's not set to `DataType.Password`.");
+            var confirm = confirmPasswordProperty.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(CompareAttribute));
+            Assert.True(confirm != null, "`RegisterViewModel` has a property `ConfirmPassword` but it doesn't appear to have a `Compare` attribute set to `Password`.");
+            Assert.True(confirm.ConstructorArguments.Count == 1 && (string)confirm.ConstructorArguments[0].Value == "Password", "`RegisterViewModel` has a property `ConfirmPassword` with a `Compare` attribute, but it is not set to `Password`.");
         }
 
         [Fact(DisplayName = "Create Register View @create-register-view")]
@@ -61,31 +73,51 @@ namespace WishListTests
                 file = streamReader.ReadToEnd();
             }
 
-            var pattern = @"</s*?form/s*.*?asp-action/s*?=/s*?""Register""/s*?.*?>";
+            var pattern = @"@model\s*WishList[.]Models[.]AccountViewModels[.]RegisterViewModel";
             var rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` doesn't have it's model set to `WishList.Models.AccountViewModels.RegisterViewModel`.");
+
+            pattern = @"<\s*?form\s*.*?asp-action\s*?=\s*?""Register""\s*?.*?>";
+            rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml`'s `form` tag didn't contain an attribute `asp-action` set to ""Register"".");
 
-            pattern = @"</s*?input/s*.*?asp-for/s*?=/s*?""Email""/s*?.*?[/]>";
+            pattern = @"<\s*?div\s*.*?asp-validation-summary\s*?=\s*?""All""\s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `div` tag with an attribute `asp-validation-summary` set to ""All"".");
+
+            pattern = @"<\s*?label\s*.*?asp-for\s*?=\s*?""Email""\s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `label` tag with an attribute `asp-for` set to ""Email"".");
+
+            pattern = @"<\s*?input\s*.*?asp-for\s*?=\s*?""Email""\s*?.*?[/]>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""Email"".");
 
-            pattern = @"</s*?span/s*.*?asp-validation-for/s*?=/s*?""Email""/s*?.*?>";
+            pattern = @"<\s*?span\s*.*?asp-validation-for\s*?=\s*?""Email""\s*?.*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""Email"".");
 
-            pattern = @"</s*?input/s*.*?asp-for/s*?=/s*?""Password""/s*?.*?[/]>";
+            pattern = @"<\s*?label\s*.*?asp-for\s*?=\s*?""Password""\s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `label` tag with an attribute `asp-for` set to ""Password"".");
+
+            pattern = @"<\s*?input\s*.*?asp-for\s*?=\s*?""Password""\s*?.*?[/]>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""Password"".");
 
-            pattern = @"</s*?span/s*.*?asp-validation-for/s*?=/s*?""Password""/s*?.*?>";
+            pattern = @"<\s*?span\s*.*?asp-validation-for\s*?=\s*?""Password""\s*?.*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""Password"".");
 
-            pattern = @"</s*?input/s*.*?asp-for/s*?=/s*?""ConfirmPassword""/s*?.*?[/]>";
+            pattern = @"<\s*?label\s*.*?asp-for\s*?=\s*?""ConfirmPassword""\s*?.*?>";
+            rgx = new Regex(pattern);
+            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `label` tag with an attribute `asp-for` set to ""ConfirmPassword"".");
+
+            pattern = @"<\s*?input\s*.*?asp-for\s*?=\s*?""ConfirmPassword""\s*?.*?[/]>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""ConfirmPassword"".");
 
-            pattern = @"</s*?span/s*.*?asp-validation-for/s*?=/s*?""ConfirmPassword""/s*?.*?>";
+            pattern = @"<\s*?span\s*.*?asp-validation-for\s*?=\s*?""ConfirmPassword""\s*?.*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""ConfirmPassword"".");
         }
@@ -107,11 +139,15 @@ namespace WishListTests
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpGetAttribute)) != null, "`AccountController` did not contain a `Register` method with an `HttpGet` attribute");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AllowAnonymousAttribute)) != null, "`AccountController`'s Get `Register` method did not have the `AllowAnonymous` attribute");
 
-            var userManeger = new UserManager<ApplicationUser>(null, null, null, null, null, null, null, null, null);
-            var signInManager = new SignInManager<ApplicationUser>(null, null, null, null, null, null);
-            var controller = Activator.CreateInstance(accountController, new object[] { userManeger, signInManager });
-            var results = (ViewResult)method.Invoke(controller, null);
-            Assert.True(results.ViewName == "Register");
+            var userStore = new Mock<IUserStore<ApplicationUser>>();
+            var contextAccessor = new Mock<IHttpContextAccessor>();
+            var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
+            var userManager = new UserManager<ApplicationUser>(userStore.Object, null, null, null, null, null, null, null, null);
+            var signInManager = new SignInManager<ApplicationUser>(userManager, contextAccessor.Object, claimsFactory.Object, null, null, null);
+            var controller = Activator.CreateInstance(accountController, new object[] { userManager, signInManager });
+            var results = method.Invoke(controller, null) as ViewResult;
+            Assert.True(results != null, "`AccountController`'s HttpGet `Register` action did not return a the `Register` view.");
+            Assert.True(results.ViewName == "Register" || results.ViewName == null, "`AccountController`'s HttpGet `Register` action did not return a the `Register` view.");
         }
 
         [Fact(DisplayName = "Create HttpPost Register Action @create-httppost-register-action")]
@@ -138,21 +174,49 @@ namespace WishListTests
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(HttpPostAttribute)) != null, "`AccountController` did not contain a `Register` method with an `HttpPost` attribute");
             Assert.True(method.CustomAttributes.FirstOrDefault(e => e.AttributeType == typeof(AllowAnonymousAttribute)) != null, "`AccountController`'s Post `Register` method did not have the `AllowAnonymous` attribute");
 
-            var userManeger = new UserManager<ApplicationUser>(null, null, null, null, null, null, null, null, null);
-            var signInManager = new SignInManager<ApplicationUser>(null, null, null, null, null, null);
-            var controller = Activator.CreateInstance(accountController, new object[] { userManeger, signInManager });
+            var userStore = new Mock<IUserPasswordStore<ApplicationUser>>();
+            var contextAccessor = new Mock<IHttpContextAccessor>();
+            var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
+            var userManager = new Mock<UserManager<ApplicationUser>>(userStore.Object, null, null, null, null, null, null, null, null);
+            userManager.Setup(e => e.CreateAsync(It.IsAny<ApplicationUser>(),"success")).ReturnsAsync(IdentityResult.Success).Verifiable();
+            userManager.Setup(e => e.CreateAsync(It.IsAny<ApplicationUser>(), "failure")).ReturnsAsync(IdentityResult.Failed(new IdentityError[] { new IdentityError { Code = string.Empty, Description = "Bad Password" } }));
+            var signInManager = new Mock<SignInManager<ApplicationUser>>(userManager.Object, contextAccessor.Object, claimsFactory.Object, null, null, null);
+            var controller = Activator.CreateInstance(accountController, new object[] { userManager.Object, signInManager.Object });
             var model = Activator.CreateInstance(registerViewModel, null);
-            registerViewModel.GetProperty("Email").SetValue(model, "BadEmail");
-            registerViewModel.GetProperty("Password").SetValue(model, "!4oOauidT_5");
-            registerViewModel.GetProperty("ConfirmPassword").SetValue(model, "!4oOauidT_5");
-            var badModelResults = (ViewResult)method.Invoke(controller, new object[] { model });
-            Assert.True(badModelResults.ViewName == "Register", "`AccountController`'s Post `Register` method did not return the `Register` view when the `ModelState` was not valid.");
+            registerViewModel.GetProperty("Email").SetValue(model, "Test@Test.com");
+            registerViewModel.GetProperty("Password").SetValue(model, "failure");
+            registerViewModel.GetProperty("ConfirmPassword").SetValue(model, "failure");
+
+            var modelState = accountController.GetProperty("ModelState").GetValue(controller);
+            var addModelError = typeof(ModelStateDictionary).GetMethod("AddModelError", new Type[] { typeof(string), typeof(string) });
+            addModelError.Invoke(modelState, new object[] { "Email", "The entered email is not a valid email address." });
+
+            var badModelResults = method.Invoke(controller, new object[] { model }) as ViewResult;
+            Assert.True(badModelResults != null && (badModelResults.ViewName == "Register" || badModelResults.ViewName == null), "`AccountController`'s Post `Register` method did not return the `Register` view when the `ModelState` was not valid.");
             Assert.True(badModelResults.Model == model, "`AccountController`'s Post `Register` method did not provide the invalid model when returning the `Register` view when the `ModelState` was not valid.");
 
-            registerViewModel.GetProperty("Email").SetValue(model, "Valid@Email.com");
-            var goodModelResults = (RedirectToActionResult)method.Invoke(controller, new object[] { model });
-            Assert.True(goodModelResults.ControllerName == "Home" && goodModelResults.ActionName == "Index", "`AccountController`'s Post `Register` method did not return a `RedirectToAction` to the `Home.Index` action when a valid model was submitted.");
-            // Need to verify user was created
+            var clearModelError = typeof(ModelStateDictionary).GetMethod("Clear", new Type[] { });
+            clearModelError.Invoke(modelState, new object[] { });
+
+
+            var badPasswordResults = method.Invoke(controller, new object[] { model }) as ViewResult;
+            Assert.True(badPasswordResults != null && (badPasswordResults.ViewName == "Register" || badPasswordResults.ViewName == null),"`AccountController`'s Post `Register` action did not return the `Register` view when `CreateAsync` failed to create the user");
+            Assert.True(badPasswordResults.ViewData != null && badPasswordResults.ViewData.ModelState != null && badPasswordResults.ViewData.ModelState.ErrorCount == 1, "`AccountController`'s Post `Register` action did not add errors from the `Errors` property of the returned `IdentityResult` from  `CreateAsync` when it failed to create the user");
+
+            clearModelError.Invoke(modelState, new object[] { });
+
+            registerViewModel.GetProperty("Password").SetValue(model, "success");
+            registerViewModel.GetProperty("ConfirmPassword").SetValue(model, "success");
+            var goodModelResults = method.Invoke(controller, new object[] { model }) as RedirectToActionResult;
+            try
+            {
+                userManager.Verify();
+            }
+            catch (MockException)
+            {
+                Assert.True(false, "`AccountController`'s Post `Register` action did not create a new user when the model was valid.");
+            }
+            Assert.True(goodModelResults != null && goodModelResults.ControllerName == "Home" && goodModelResults.ActionName == "Index", "`AccountController`'s Post `Register` method did not return a `RedirectToAction` to the `Home.Index` action when a valid model was submitted.");
         }
     }
 }

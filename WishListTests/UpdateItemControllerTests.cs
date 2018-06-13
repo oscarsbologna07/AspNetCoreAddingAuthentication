@@ -1,8 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Moq;
+using WishList.Data;
+using WishList.Models;
 using Xunit;
 
 namespace WishListTests
@@ -16,12 +23,56 @@ namespace WishListTests
             Assert.True(File.Exists(filePath), "`ItemController.cs` was not found in the `Controllers` folder, did you remove or rename it?");
 
             var itemController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Controllers.ItemController"
-                                     select type).FirstOrDefault();
+                                  from type in assembly.GetTypes()
+                                  where type.FullName == "WishList.Controllers.ItemController"
+                                  select type).FirstOrDefault();
 
             Assert.True(itemController != null, "A `public` class `ItemController` was not found in the `WishList.Controllers` namespace, did you remove or rename it?");
-            Assert.True(itemController.CustomAttributes.Where(e => e.AttributeType == typeof(AuthorizeAttribute)) != null, "`ItemController` didn't have an `Authorize` attribute.");
+            Assert.True(itemController.CustomAttributes.Any(e => e.AttributeType == typeof(AuthorizeAttribute)), "`ItemController` didn't have an `Authorize` attribute.");
+        }
+
+        [Fact(DisplayName = "Add UserManager To ItemController @add-usermanager-to-itemcontroller")]
+        public void AddUserManagerToItemControllerTest()
+        {
+            var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "ItemController.cs";
+            Assert.True(File.Exists(filePath), "`ItemController.cs` was not found in the `Controllers` folder, did you remove or rename it?");
+
+            var itemController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                                  from type in assembly.GetTypes()
+                                  where type.FullName == "WishList.Controllers.ItemController"
+                                  select type).FirstOrDefault();
+
+            Assert.True(itemController != null, "A `public` class `ItemController` was not found in the `WishList.Controllers` namespace, did you remove or rename it?");
+
+            var userManager = itemController.GetField("_userManager", BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.True(userManager != null, "`ItemController` does not appear to contain a `private` `readonly` field `_userManager` of type `UserManager<ApplicationUser>`.");
+            Assert.True(userManager.FieldType == typeof(UserManager<ApplicationUser>), "`ItemController` has a `_userManager` field but it is not of type `UserManager<ApplicationUser>`.");
+            Assert.True(userManager.IsInitOnly, "`ItemController` has a `_userManager` field but it is not `readonly`.");
+        }
+
+        [Fact(DisplayName = "Add Parameter to ItemController @add-parameter-to-itemcontroller")]
+        public void AddParameterToItemControllerTest()
+        {
+            var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "ItemController.cs";
+            Assert.True(File.Exists(filePath), "`ItemController.cs` was not found in the `Controllers` folder, did you remove or rename it?");
+
+            var itemController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                                  from type in assembly.GetTypes()
+                                  where type.FullName == "WishList.Controllers.ItemController"
+                                  select type).FirstOrDefault();
+
+            Assert.True(itemController != null, "A `public` class `ItemController` was not found in the `WishList.Controllers` namespace, did you remove or rename it?");
+
+            var constructor = itemController.GetConstructors().FirstOrDefault();
+            var parameters = constructor.GetParameters();
+            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager<ApplicationUser>`.");
+
+            var userStore = new Mock<IUserStore<ApplicationUser>>();
+            var userManager = new UserManager<ApplicationUser>(userStore.Object, null, null, null, null, null, null, null, null);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            var applicationDbContext = new ApplicationDbContext(optionsBuilder.Options);
+            var controller = Activator.CreateInstance(itemController, new object[] { applicationDbContext, userManager });
+            Assert.True(itemController.GetField("_userManager", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(controller) == userManager, "`ItemController`'s constructor did not set the `_userManager` field based on the provided `UserManager<ApplicationUser>` parameter.");
         }
 
         [Fact(DisplayName = "Update Index Action @update-index-action")]
@@ -31,18 +82,25 @@ namespace WishListTests
             Assert.True(File.Exists(filePath), @"`ItemController.cs` was not found in the `Controllers` folder.");
 
             var itemController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Controllers.ItemController"
-                                     select type).FirstOrDefault();
+                                  from type in assembly.GetTypes()
+                                  where type.FullName == "WishList.Controllers.ItemController"
+                                  select type).FirstOrDefault();
             Assert.True(itemController != null, "A `public` class `ItemController` was not found in the `WishList.Controllers` namespace.");
 
-            var method = itemController.GetMethod("Index", new Type[] {  });
+            var method = itemController.GetMethod("Index", new Type[] { });
             Assert.True(method != null, "`ItemController` did not contain a `Index` method did you remove or rename it?");
+            var constructor = itemController.GetConstructors().FirstOrDefault();
+            var parameters = constructor.GetParameters();
+            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager<ApplicationUser>`.");
 
-            var controller = Activator.CreateInstance(itemController, new object[] { });
+            var userStore = new Mock<IUserStore<ApplicationUser>>();
+            var userManager = new UserManager<ApplicationUser>(userStore.Object, null, null, null, null, null, null, null, null);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            var applicationDbContext = new ApplicationDbContext(optionsBuilder.Options);
+            var controller = Activator.CreateInstance(itemController, new object[] { applicationDbContext, userManager });
 
-            var results = (ViewResult)method.Invoke(controller, new object[] { });
-            Assert.True(results.ViewName == "Login", "`ItemController`'s `Index` method did not return the `Index` view with a model of only items with the logged in User's Id.");
+            var results = method.Invoke(controller, new object[] { }) as ViewResult;
+            Assert.True(results != null && results.ViewName == "Login", "`ItemController`'s `Index` method did not return the `Index` view with a model of only items with the logged in User's Id.");
             Assert.True(results.Model != null, "`ItemController`'s `Index` method did return the `Index` view with a model of only items with the logged in User's Id.");
             // verify results contain only correct items
         }
@@ -61,12 +119,19 @@ namespace WishListTests
 
             var method = itemController.GetMethod("Create", new Type[] { });
             Assert.True(method != null, "`ItemController` did not contain a `Create` method did you remove or rename it?");
+            var constructor = itemController.GetConstructors().FirstOrDefault();
+            var parameters = constructor.GetParameters();
+            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager<ApplicationUser>`.");
 
-            var controller = Activator.CreateInstance(itemController, new object[] { });
+            var userStore = new Mock<IUserStore<ApplicationUser>>();
+            var userManager = new UserManager<ApplicationUser>(userStore.Object, null, null, null, null, null, null, null, null);
+            var optionsBuilder = new DbContextOptionsBuilder();
+            var applicationDbContext = new ApplicationDbContext(optionsBuilder.Options);
+            var controller = Activator.CreateInstance(itemController, new object[] { applicationDbContext, userManager });
 
-            var results = (ViewResult)method.Invoke(controller, new object[] { });
+            var results = method.Invoke(controller, new object[] { }) as ViewResult;
             Assert.True(results != null, "`ItemController`'s `Create` method did not run successfully, please run locally and verify results.");
-            // verify create actually adds the userid before saving
+            // Verify this sets the item / user relationship
         }
     }
 }
