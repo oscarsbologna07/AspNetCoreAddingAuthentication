@@ -174,6 +174,17 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- This action should have a return type of `IActionResult`
 			- This action should use `SignInManager`'s `SignOutAsync` method
 			- This should return a `RedirectToAction` to the `Home.Index` action
+	- [ ] Add Links to Index View
+		- [ ] Add `using` directives for `Microsoft.AspNetCore.Identity` and `WishList.Models` to the top of `Index.cshtml`
+		- [ ] Add an `inject` directive for `SignInManager<ApplicationUser>` with the name `SignInManager` after the `using` directives
+		- [ ] Check if the user is signed in using the injected `SignInManager`'s `IsSignedIn` method (provide `User` as the arguement)
+			- If `IsSignedIn` returns `true` provide the following HTML
+				`<a asp-action="Logout" asp-controller="Account">Logout</a>`
+			- If `IsSignedIn` returns `false` provide the following HTML
+				```
+					<a asp-controller="Account" asp-action="Register">Register</a><br/>
+					<a asp-controller="Account" asp-action="Login">Log in</a>
+				```
 	- [ ] Create Relationship Between Item and ApplicationUser Models
 		- [ ] Add a `virtual` property of type `ApplicationUser` named `User` to the `Item` model
 		- [ ] Add a `virtual` property of type `ICollection<Item>` named `Items` to the `ApplicationUser` model
@@ -185,6 +196,8 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- Change the `_context.Items.ToList();` to include a `Where` call that only gets items with the matching `User.Id`. (You can get the current logged in user using `UserManager.GetUserAsync(HttpContext.User)`)
 		- [ ] Update the `HttpPost` `ItemController.Create` action to add the logged in User to the `Item`
 			- Before adding the Item to set the UserId to the logged in user's Id (You can get the current logged in user using `UserManager.GetUserAsync(HttpContext.User)`)
+		- [ ] Update the `ItemController.Delete` action to prevent deleting items by anyone but the user who owns that item.
+			- Before removing the Item check te make sure the Item's User is the same as the logged in user, if not return `Unauthorized`
 	
 ## What Now?
 
