@@ -114,7 +114,7 @@ namespace WishListTests
             var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
             var userManager = new Mock<UserManager<ApplicationUser>>(userStore.Object, null, null, null, null, null, null, null, null);
             var signInManager = new Mock<SignInManager<ApplicationUser>>(userManager.Object, contextAccessor.Object, claimsFactory.Object, null, null, null);
-            signInManager.Setup(e => e.PasswordSignInAsync(It.IsAny<string>(), "failure", It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(new Microsoft.AspNetCore.Identity.SignInResult() { }).Verifiable();
+            signInManager.Setup(e => e.PasswordSignInAsync(It.IsAny<string>(), "failure", It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Failed).Verifiable();
             signInManager.Setup(e => e.PasswordSignInAsync(It.IsAny<string>(), "success", It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
             var controller = Activator.CreateInstance(accountController, new object[] { userManager.Object, signInManager.Object });
             var model = Activator.CreateInstance(loginViewModel, null);
