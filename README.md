@@ -182,8 +182,8 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				`<a asp-action="Logout" asp-controller="Account">Logout</a>`
 			- If `IsSignedIn` returns `false` provide the following HTML
 				```
-					<a asp-controller="Account" asp-action="Register">Register</a><br/>
-					<a asp-controller="Account" asp-action="Login">Log in</a>
+					<a asp-action="Register" asp-controller="Account" >Register</a><br/>
+					<a asp-action="Login" asp-controller="Account" >Log in</a>
 				```
 	- [ ] Create Relationship Between Item and ApplicationUser Models
 		- [ ] Add a `virtual` property of type `ApplicationUser` named `User` to the `Item` model
