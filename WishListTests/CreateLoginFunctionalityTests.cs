@@ -114,6 +114,7 @@ namespace WishListTests
             var claimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
             var userManager = new Mock<UserManager<ApplicationUser>>(userStore.Object, null, null, null, null, null, null, null, null);
             var signInManager = new Mock<SignInManager<ApplicationUser>>(userManager.Object, contextAccessor.Object, claimsFactory.Object, null, null, null);
+            signInManager.Setup(e => e.PasswordSignInAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Failed);
             signInManager.Setup(e => e.PasswordSignInAsync(It.IsAny<string>(), "failure", It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Failed).Verifiable();
             signInManager.Setup(e => e.PasswordSignInAsync(It.IsAny<string>(), "success", It.IsAny<bool>(), It.IsAny<bool>())).ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
             var controller = Activator.CreateInstance(accountController, new object[] { userManager.Object, signInManager.Object });
@@ -139,7 +140,7 @@ namespace WishListTests
             }
             catch (MockException)
             {
-                Assert.True(false, "`AccountController`'s Post `Login` action did not attempt to login in the user using `PasswordSignInAsync`.");
+                Assert.True(false, "`AccountController`'s Post `Login` action did not attempt to login in the user using `PasswordSignInAsync(string,string,bool,bool)` (Note: for this project do not use the `PasswordSignInAsync(ApplicationUser,string,bool,bool)` signature).");
             }
             Assert.True(badResults != null && (badResults.ViewName == "Login" || badResults.ViewName == null), "`AccountController`'s `Login` method did not return the `Login` view when the login failed.");
             Assert.True(badResults.Model == model, "`AccountController`'s `Login` method did not provide the invalid model when returning the `Login` view when login failed.");

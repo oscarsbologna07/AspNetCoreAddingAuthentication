@@ -38,12 +38,12 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 	- [ ] Configure Authentication
 		- Note : We created the model `ApplicationUser` that inherits `IdentityUser` for you! (This was done to allow us to more accurately test your code through out this project)
 		- [ ] Replace `ApplicationDbContext`'s inheritance of `DbContext` to `IdentityDbContext<ApplicationUser>` (you will need to add `using` directives for `Microsoft.AspNetCore.Identity.EntityFrameworkCore` and `using WishList.Models`)
-		- [ ] In `StartUp.cs`'s `ConfigureServices` method call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services` (you will need to add `using` directives for `Microsoft.AspNetCore.Identity` and `using WishList.Models`)
-		- [ ] In `StartUp.cs`'s `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
+		- [ ] In `Startup.cs`'s `ConfigureServices` method call `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services` (you will need to add `using` directives for `Microsoft.AspNetCore.Identity` and `using WishList.Models`)
+		- [ ] In `Startup.cs`'s `Configure` method Before `app.UseMvcWithDefaultRoute();` call `UseAuthentication` on `app`.
 	- [ ] Create `AccountController`
 		- [ ] Create new controller `AccountController` in the `Controllers` folder
-			- The AccountController class should have the `Authorize` attribute (you will need a `using` directive for `Microsoft.AspNetCore.Authorization`)
-			- This should inherit the `Controller` class (you will need a `using` directive for `Microsoft.AspNetCore.Mvc`)
+			- The `AccountController` class should have the `Authorize` attribute (you will need a `using` directive for `Microsoft.AspNetCore.Authorization`)
+			- The `AccountController` should inherit the `Controller` class (you will need a `using` directive for `Microsoft.AspNetCore.Mvc`)
 		- [ ] Create private fields in the `AccountController` class
 			- This should have a private readonly field of type `UserManager<ApplicationUser>` named `_userManager` (you will need a `using` directives for `WishList.Models` and `Microsoft.AspNetCore.Identity`)
 			- This should have a private readonly field of type `SignInManager<ApplicationUser>` named `_signInManager`
@@ -58,7 +58,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				- Email should have the EmailAddress attribute
 			- Create a String Property `Password`
 				- `Password` should have the `Required` attribute
-				- `Password` should have a `StringLength` attribute of 100 with a `MinLength` of 8 characters
+				- `Password` should have a `StringLength` attribute of 100 with a `MinimumLength` of 8 characters
 				- `Password` should have the `DataType.Password` attribute
 			- Create a `String` Property `ConfirmPassword`
 				- `ConfirmPassword` should have the `DataType.Password` attribute
@@ -75,36 +75,27 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 						<label></label>
 						<br/>
 						<input />
-						<span></span>
 					</div>
 					<div>
 						<label></label>
 						<br/>
 						<input />
-						<span></span>
 					</div>
 					<div>
 						<label></label>
 						<br/>
 						<input />
-						<span></span>
 					</div>
 					<div>
 						<button type="submit">Register User</button>
 					</div>
 				</form>
 				```
-			- Add an attribute `asp-action` with a value of `"Register" to the `form` tag
+			- Add an attribute `asp-action` with a value of `"Register"` to the `form` tag
 			- Add an attribute `asp-validation-summary` with a value of `"All"` for the `div` tag with an attribute `class` of value `"text-danger"`
-			- Add an attribute `asp-for` with a value of `"Email"` to the first `label` tag
-			- Add an attribute `asp-for` with a value of `"Email"` to the first `input` tag
-			- Add an attribute `asp-validation-for` with a value of `"Email"` to the first `span` tag
-			- Add an attribute `asp-for` with a value of `"Password"` to the second `label` tag
-			- Add an attribute `asp-for` with a value of `"Password"` to the second `input` tag
-			- Add an attribute `asp-validation-for` with a value of `"Password"` to the second `span` tag
-			- Add an attribute `asp-for` with a value of `"ConfirmPassword"` to the third `label` tag
-			- Add an attribute `asp-for` with a value of `"ConfirmPassword"` to the third `input` tag
-			- Add an attribute `asp-validation-for` with a value of `"ConfirmPassword"` to the third `span` tag
+			- Add an attribute `asp-for` with a value of `"Email"` to both the first `label` and `input` tag
+			- Add an attribute `asp-for` with a value of `"Password"` to both the second `label` and `input` tag
+			- Add an attribute `asp-for` with a value of `"ConfirmPassword"` to both the third `label` and `input` tag
 		- [ ] Create an `HttpGet` action `Register` in the `AccountController` class
 			- This action should have the `HttpGet` attribute
 			- This action should have the `AllowAnonymous` attribute
@@ -116,7 +107,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- This action should accept a parameter of type `RegisterViewModel`
 			- This action should check if the `ModelState` is valid
 				- If not return the `Register` view with the model provided in the parameter as it's model
-			- This action should create the new user using the `SignInManager.CreateUserAsync` method providing it a valid `ApplicationUser` (you will need to set the `User` and `Email` properties to the `Email` from the `RegisterViewModel`) and a `string`  which you'll set the the `Password` property from the `RegisterViewModel`
+			- This action should create the new user using the `_userManager.CreateAsync` method providing it a valid `ApplicationUser` (you will need to set the `User` and `Email` properties to the `Email` from the `RegisterViewModel`) and a `string`  which you'll set the the `Password` property from the `RegisterViewModel`
 			- Check the `Result` property from the `CreateAsync` call if `Result.Success`
 				- If `Result.Success` is `false` foreach error in `Result.Errors` use `ModelState.AddModelError` to add an error with a the first parameter of`"Password"` and second with the value of the error's `Description` property. Then return the `Register` view with the model provided by `Register`'s the parameter.
 				- If `Result.Success` is `true` `RedirectToAction` to `Home.Index`
@@ -164,7 +155,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- This action should accept a parameter of type `LoginViewModel`
 			- This action should check if the `ModelState` is valid
 				- If not return the `Login` view with the model provided in the parameter as it's model
-			- This should use `SignInManager`'s `PasswordSignInAsync` method to attempt to login the user (Note: you will need to check the `Result` property to see the results, pass `false` for the 3rd and 4th parameters)
+			- This should use `SignInManager`'s `PasswordSignInAsync` method with the `(string,string,bool,bool)` signature to attempt to login the user (Note: you will need to check the `Result` property to see the results, pass `false` for the 3rd and 4th parameters)
 				- If the result is `Succeeded` return a `RedirectToAction` to the `Item.Index` action
 				- Otherwise use `ModelState`'s `AddModelError` with a key of `string.Empty` and an `errorMessage` of `"Invalid login attempt."`
 	- [ ] Create Logout Functionality
