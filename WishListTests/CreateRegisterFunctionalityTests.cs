@@ -89,10 +89,6 @@ namespace WishListTests
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""Email"".");
 
-            pattern = @"<\s*?span\s*.*?asp-validation-for\s*?=\s*?""Email""\s*?.*?>";
-            rgx = new Regex(pattern);
-            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""Email"".");
-
             pattern = @"<\s*?label\s*.*?asp-for\s*?=\s*?""Password""\s*?.*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `label` tag with an attribute `asp-for` set to ""Password"".");
@@ -101,10 +97,6 @@ namespace WishListTests
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""Password"".");
 
-            pattern = @"<\s*?span\s*.*?asp-validation-for\s*?=\s*?""Password""\s*?.*?>";
-            rgx = new Regex(pattern);
-            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""Password"".");
-
             pattern = @"<\s*?label\s*.*?asp-for\s*?=\s*?""ConfirmPassword""\s*?.*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `label` tag with an attribute `asp-for` set to ""ConfirmPassword"".");
@@ -112,10 +104,6 @@ namespace WishListTests
             pattern = @"<\s*?input\s*.*?asp-for\s*?=\s*?""ConfirmPassword""\s*?.*?[/]>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain an `input` tag with an attribute `asp-for` set to ""ConfirmPassword"".");
-
-            pattern = @"<\s*?span\s*.*?asp-validation-for\s*?=\s*?""ConfirmPassword""\s*?.*?>";
-            rgx = new Regex(pattern);
-            Assert.True(rgx.IsMatch(file), @"`Register.cshtml` did not contain a `span` tag with an attribute `asp-validation-for` set to ""ConfirmPassword"".");
         }
 
         [Fact(DisplayName = "Create HttpGet Register Action @create-httpget-register-action")]
