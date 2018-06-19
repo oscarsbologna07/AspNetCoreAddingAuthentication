@@ -65,8 +65,10 @@ namespace WishListTests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseInMemoryDatabase("Test");
             var applicationDbContext = new ApplicationDbContext(optionsBuilder.Options);
-            applicationDbContext.Items.Add(new Item() { Id = 1, Description = "Do Not Show", User = new ApplicationUser() });
-            applicationDbContext.Items.Add(new Item() { Id = 2, Description = "Show", User = appuser });
+            var item = new Item() { Id = 2, Description = "Show" };
+            typeof(Item).GetProperty("User").SetValue(item, appuser);
+            applicationDbContext.Items.Add(new Item() { Id = 1, Description = "Do Not Show" });
+            applicationDbContext.Items.Add(item);
             applicationDbContext.SaveChanges();
             var controller = Activator.CreateInstance(typeof(ItemController), new object[] { applicationDbContext, userManager.Object }) as ItemController;
             var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
