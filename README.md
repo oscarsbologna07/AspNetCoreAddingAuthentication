@@ -73,17 +73,14 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 					<div class="text-danger"></div>
 					<div>
 						<label></label>
-						<br/>
 						<input />
 					</div>
 					<div>
 						<label></label>
-						<br/>
 						<input />
 					</div>
 					<div>
 						<label></label>
-						<br/>
 						<input />
 					</div>
 					<div>
@@ -188,7 +185,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 				```
 	- [ ] Create Relationship Between Item and ApplicationUser Models
 		- [ ] Add a `virtual` property of type `ApplicationUser` named `User` to the `Item` model
-		- [ ] Add a `virtual` property of type `ICollection<Item>` named `Items` to the `ApplicationUser` model
+		- [ ] Add a `virtual` property of type `ICollection<Item>` named `Items` to the `ApplicationUser` model (you will need to add a `using` directive for `System.Collections.Generic`)
 	- [ ] Update ItemController actions to consider user
 		- [ ] Add the `Authorize` attribute to the `ItemController` class
 		- [ ] Add a new `private` `readonly` field of type `UserManager<ApplicationUser>` named `_userManager`
