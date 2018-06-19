@@ -108,7 +108,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- Check the `Result` property from the `CreateAsync` call if `Result.Success`
 				- If `Result.Success` is `false` foreach error in `Result.Errors` use `ModelState.AddModelError` to add an error with a the first parameter of`"Password"` and second with the value of the error's `Description` property. Then return the `Register` view with the model provided by `Register`'s the parameter.
 				- If `Result.Success` is `true` `RedirectToAction` to `Home.Index`
-	- [ ] Create Login Functionality
+	- [ ] Create Login / Logout Functionality
 		- [ ] Create `LoginViewModel` class in the `Models\AccountViewModels` folder
 			- Create a `String` Property Email
 				- Email should have the Required attribute
@@ -155,7 +155,6 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 			- This should use `SignInManager`'s `PasswordSignInAsync` method with the `(string,string,bool,bool)` signature to attempt to login the user (Note: you will need to check the `Result` property to see the results, pass `false` for the 3rd and 4th parameters)
 				- If the result is `Succeeded` return a `RedirectToAction` to the `Item.Index` action
 				- Otherwise use `ModelState`'s `AddModelError` with a key of `string.Empty` and an `errorMessage` of `"Invalid login attempt."`
-	- [ ] Create Logout Functionality
 		- [ ] `Create` an `HttpPost` action `Logout` in the `AccountController`
 			- This action should have the `HttpPost` attribute
 			- This action should have the `ValidateAntiForgeryToken` attribute
