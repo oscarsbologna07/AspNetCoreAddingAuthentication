@@ -187,7 +187,7 @@ __Note:__ this isn't the only way to accomplish this, however; this is what the 
 		- [ ] Add a `virtual` property of type `ApplicationUser` named `User` to the `Item` model
 		- [ ] Add a `virtual` property of type `ICollection<Item>` named `Items` to the `ApplicationUser` model (you will need to add a `using` directive for `System.Collections.Generic`)
 	- [ ] Update ItemController actions to consider user
-		- [ ] Add the `Authorize` attribute to the `ItemController` class
+		- [ ] Add the `Authorize` attribute to the `ItemController` class (you will need to add a `using` directive for `Microsoft.AspNetCore.Authorization`)
 		- [ ] Add a new `private` `readonly` field of type `UserManager<ApplicationUser>` named `_userManager`
 		- [ ] Update the `ItemController`'s constructor to accept a second parameter of type `UserManager<ApplicationUser>` and within the costructor set `_userManager` to the provided `UserManager<ApplicationUser>` paramater.
 		- [ ] Update the `ItemController.Index` action to only return items with associated with the currently logged in user.
