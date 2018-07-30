@@ -43,13 +43,13 @@ namespace WishListTests
             Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
 
             var userManager = accountController.GetField("_userManager", BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.True(userManager != null, "`AccountController` does not appear to contain a `private` `readonly` field `_userManager` of type `UserManager<ApplicationUser>`.");
-            Assert.True(userManager.FieldType == typeof(UserManager<ApplicationUser>), "`AccountController` has a `_userManager` field but it is not of type `UserManager<ApplicationUser>`.");
+            Assert.True(userManager != null, "`AccountController` does not appear to contain a `private` `readonly` field `_userManager` of type `UserManager` with a type argument of `ApplicationUser`.");
+            Assert.True(userManager.FieldType == typeof(UserManager<ApplicationUser>), "`AccountController` has a `_userManager` field but it is not of type `UserManager` with a type argument of `ApplicationUser`.");
             Assert.True(userManager.IsInitOnly, "`AccountController` has a `_userManager` field but it is not `readonly`.");
 
             var signInManager = accountController.GetField("_signInManager", BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.True(signInManager != null, "`AccountController` does not appear to contain a `private` `readonly` field `_signInManager` of type `SignInManager<ApplicationUser>`.");
-            Assert.True(signInManager.FieldType == typeof(SignInManager<ApplicationUser>), "`AccountController` has a `_signInManager` field but it is not of type `SignInManager<ApplicationUser>`.");
+            Assert.True(signInManager != null, "`AccountController` does not appear to contain a `private` `readonly` field `_signInManager` of type `SignInManager` with a type argument of `ApplicationUser`.");
+            Assert.True(signInManager.FieldType == typeof(SignInManager<ApplicationUser>), "`AccountController` has a `_signInManager` field but it is not of type `SignInManager` with a type argument of `ApplicationUser`.");
             Assert.True(signInManager.IsInitOnly, "`AccountController` has a `_signInManager` field but it is not `readonly`.");
         }
 
@@ -75,8 +75,8 @@ namespace WishListTests
             var userManager = new UserManager<ApplicationUser>(userStore.Object, null, null, null, null, null, null, null, null);
             var signInManager = new SignInManager<ApplicationUser>(userManager, contextAccessor.Object, claimsFactory.Object, null, null, null);
             var controller = Activator.CreateInstance(accountController, new object[] { userManager, signInManager });
-            Assert.True(accountController.GetField("_userManager", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(controller) == userManager, "`AccountController`'s constructor did not set the `_userManager` field based on the provided `UserManager<ApplicationUser>` parameter.");
-            Assert.True(accountController.GetField("_signInManager", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(controller) == signInManager, "`AccountController``s constructor did not set the `_signInManager` field based on the provided `SignInManager<ApplicationUser>` parameter.");
+            Assert.True(accountController.GetField("_userManager", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(controller) == userManager, "`AccountController`'s constructor did not set the `_userManager` field based on the provided `UserManager` parameter.");
+            Assert.True(accountController.GetField("_signInManager", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(controller) == signInManager, "`AccountController``s constructor did not set the `_signInManager` field based on the provided `SignInManager` parameter.");
         }
     }
 }

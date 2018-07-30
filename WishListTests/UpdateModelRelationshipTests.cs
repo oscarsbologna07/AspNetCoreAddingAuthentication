@@ -40,8 +40,8 @@ namespace WishListTests
             Assert.True(item != null, "A `public` class `ApplicationUser` was not found in the `WishList.Models` namespace, did you accidentally rename or remove it?");
 
             var itemsProperty = item.GetProperty("Items");
-            Assert.True(itemsProperty != null, "`ApplicationUser` does not appear to contain a `public` `virtual` `ICollection<Item>` property `Items`");
-            Assert.True(itemsProperty.PropertyType == typeof(ICollection<Item>), "`ApplicationUser` contained a property `Items` but it was not of type `ICollection<Item>`");
+            Assert.True(itemsProperty != null, "`ApplicationUser` does not appear to contain a `public` `virtual` `ICollection` with a type argument of `Item` property `Items`");
+            Assert.True(itemsProperty.PropertyType == typeof(ICollection<Item>), "`ApplicationUser` contained a property `Items` but it was not of type `ICollection` with a type argument of `Item`");
             Assert.True(itemsProperty.GetMethod.IsVirtual, "`ApplicationUser` contained a property `Items` but it didn't use the `virtual` keyword.");
         }
     }

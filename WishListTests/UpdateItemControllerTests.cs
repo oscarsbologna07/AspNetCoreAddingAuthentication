@@ -29,8 +29,8 @@ namespace WishListTests
         public void AddUserManagerToItemControllerTest()
         {
             var userManager = typeof(ItemController).GetField("_userManager", BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.True(userManager != null, "`ItemController` does not appear to contain a `private` `readonly` field `_userManager` of type `UserManager<ApplicationUser>`.");
-            Assert.True(userManager.FieldType == typeof(UserManager<ApplicationUser>), "`ItemController` has a `_userManager` field but it is not of type `UserManager<ApplicationUser>`.");
+            Assert.True(userManager != null, "`ItemController` does not appear to contain a `private` `readonly` field `_userManager` of type `UserManager` with a type argument of `ApplicationUser`.");
+            Assert.True(userManager.FieldType == typeof(UserManager<ApplicationUser>), "`ItemController` has a `_userManager` field but it is not of type `UserManager` with a type argument of `ApplicationUser`.");
             Assert.True(userManager.IsInitOnly, "`ItemController` has a `_userManager` field but it is not `readonly`.");
         }
 
@@ -39,14 +39,14 @@ namespace WishListTests
         {
             var constructor = typeof(ItemController).GetConstructors().FirstOrDefault();
             var parameters = constructor.GetParameters();
-            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager<ApplicationUser>`.");
+            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager` with a type argument of `ApplicationUser`.");
 
             var userStore = new Mock<IUserStore<ApplicationUser>>();
             var userManager = new UserManager<ApplicationUser>(userStore.Object, null, null, null, null, null, null, null, null);
             var optionsBuilder = new DbContextOptionsBuilder();
             var applicationDbContext = new ApplicationDbContext(optionsBuilder.Options);
             var controller = Activator.CreateInstance(typeof(ItemController), new object[] { applicationDbContext, userManager }) as ItemController;
-            Assert.True(typeof(ItemController).GetField("_userManager", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(controller) == userManager, "`ItemController`'s constructor did not set the `_userManager` field based on the provided `UserManager<ApplicationUser>` parameter.");
+            Assert.True(typeof(ItemController).GetField("_userManager", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(controller) == userManager, "`ItemController`'s constructor did not set the `_userManager` field based on the provided `UserManager` parameter.");
         }
 
         [Fact(DisplayName = "Update Index Action @update-index-action")]
@@ -56,7 +56,7 @@ namespace WishListTests
             Assert.True(method != null, "`ItemController` did not contain an `Index` method did you remove or rename it?");
             var constructor = typeof(ItemController).GetConstructors().FirstOrDefault();
             var parameters = constructor.GetParameters();
-            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager<ApplicationUser>`.");
+            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager` with a type argument of `ApplicationUser`.");
 
             var userStore = new Mock<IUserStore<ApplicationUser>>();
             var appuser = new ApplicationUser() { Email = "test@test.com" };
@@ -80,7 +80,7 @@ namespace WishListTests
             var results = method.Invoke(controller, new object[] { }) as ViewResult;
             Assert.True(results != null && results.ViewName == "Index", "`ItemController`'s `Index` method did not return the `Index` view with a model of only items with the logged in User's Id.");
             Assert.True(results.Model != null, "`ItemController`'s `Index` method did return the `Index` view but without a model of only items with the logged in User's Id.");
-            Assert.True(results.Model.GetType() == typeof(List<Item>), "`ItemController`'s `Index` method did return the `Index` view a model but the model was not of type `List<Item>`.");
+            Assert.True(results.Model.GetType() == typeof(List<Item>), "`ItemController`'s `Index` method did return the `Index` view a model but the model was not of type `List` with a type argument of `Item`.");
             Assert.True(((List<Item>)results.Model).Count == 1, "`ItemController`'s `Index` method did return the `Index` view but without a model of only items with the logged in User's Id.");
             Assert.True(typeof(Item).GetProperty("User").GetValue(((List<Item>)results.Model)[0]) == appuser, "`ItemController`'s `Index` method did return the `Index` view but without a model of only items with the logged in User's Id.");
         }
@@ -92,7 +92,7 @@ namespace WishListTests
             Assert.True(method != null, "`ItemController` did not contain a `Create` method did you remove or rename it?");
             var constructor = typeof(ItemController).GetConstructors().FirstOrDefault();
             var parameters = constructor.GetParameters();
-            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager<ApplicationUser>`.");
+            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager` with a type argument of `ApplicationUser`.");
 
             var userStore = new Mock<IUserStore<ApplicationUser>>();
             var appuser = new ApplicationUser() { Email = "test@test.com" };
@@ -128,7 +128,7 @@ namespace WishListTests
             Assert.True(method != null, "`ItemController` did not contain a `Delete` method did you remove or rename it?");
             var constructor = itemController.GetConstructors().FirstOrDefault();
             var parameters = constructor.GetParameters();
-            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager<ApplicationUser>`.");
+            Assert.True((parameters.Count() == 2 && parameters[0]?.ParameterType == typeof(ApplicationDbContext) && parameters[1]?.ParameterType == typeof(UserManager<ApplicationUser>)), "`ItemController` did not contain a constructor with two parameters, first of type `ApplicationDbContext`, second of type `UserManager` with a type argument of `ApplicationUser`.");
 
             var userStore = new Mock<IUserStore<ApplicationUser>>();
             var appuser = new ApplicationUser() { Email = "test@test.com" };

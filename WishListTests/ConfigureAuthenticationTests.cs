@@ -13,7 +13,7 @@ namespace WishListTests
         public void UpdateApplicationDbContextInherritenceTest()
         {
             Assert.True(typeof(ApplicationDbContext) != null, "A `public` class `ApplicationDbContext` was not found in the `WishList.Data` namespace, was it accidentally renamed or deleted?");
-            Assert.True(typeof(ApplicationDbContext).BaseType == typeof(IdentityDbContext<ApplicationUser>), "`ApplicationDbContext` is not inheriting `IdentityDbContext<ApplicationUser>`.");
+            Assert.True(typeof(ApplicationDbContext).BaseType == typeof(IdentityDbContext<ApplicationUser>), "`ApplicationDbContext` is not inheriting an `IdentityDbContext` with a type argument of `ApplicationUser`.");
         }
 
         [Fact(DisplayName = "Call AddIdentity In Configure @call-addidentity-in-configureservices")]
@@ -31,7 +31,7 @@ namespace WishListTests
             var pattern = @"services\s*?[.]AddIdentity\s*?[<]\s*?ApplicationUser\s*?,\s*?IdentityRole\s*?[>]\s*?[(]\s*?[)]\s*?[.]AddEntityFrameworkStores\s*?[<]\s*?ApplicationDbContext\s*?[>]\s*?[(]\s*?[)]\s*?[.]AddDefaultTokenProviders\s*?[(]\s*?[)]\s*?;";
             var rgx = new Regex(pattern);
 
-            Assert.True(rgx.IsMatch(file), "`Startup.ConfigureServices` didn't contain a call the `AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();` on `services`.");
+            Assert.True(rgx.IsMatch(file), "`Startup.ConfigureServices` didn't contain calls for `AddIdentity` on `services`. (you can copy this call from the task instructions)");
         }
 
         [Fact(DisplayName = "Call UseAuthentication In ConfigureServices @call-useauthentication-in-configure")]
