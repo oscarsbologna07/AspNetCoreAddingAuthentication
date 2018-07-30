@@ -41,7 +41,7 @@ namespace WishListTests
 
             var pattern = @"@inject\s*SignInManager<ApplicationUser>\s*SignInManager";
             var rgx = new Regex(pattern);
-            Assert.True(rgx.IsMatch(file), @"`Home\Index.cshtml` did not contain an `inject` directive for `SignInManager<ApplicationUser>` with the name `SignInManager`.");
+            Assert.True(rgx.IsMatch(file), @"`Home\Index.cshtml` did not contain an `inject` directive for `SignInManager` with a type argument of `ApplicationUser` with the name `SignInManager`.");
         }
 
         [Fact(DisplayName = "Check If User SignedIn Index View @check-if-user-signedin-index-view")]
@@ -71,7 +71,6 @@ namespace WishListTests
             pattern = @"<a\s*asp-action\s*?=\s*?""Register""\s*asp-controller\s*?=\s*?""Account""\s*?>\s*?Register\s*?</\s*?a\s*?>";
             rgx = new Regex(pattern);
             Assert.True(rgx.IsMatch(file), @"`Home\Index.cshtml` did not contain a link to the `Account.Register` action when the user was not logged in.");
-            // Need to change this to actually be able to verify when the user is logged in or not and the results are correct in those cases
         }
     }
 }
