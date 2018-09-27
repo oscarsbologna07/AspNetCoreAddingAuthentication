@@ -13,7 +13,7 @@ If you want to use Visual Studio (highly recommended) follow the following steps
 -   Open the .sln file in visual studio
 -   To run the application simply press the Start Debug button (green arrow) or press F5
 -   If you're using Visual Studio on Windows, to run tests open the Test menu, click Run, then click on Run all tests (results will show up in the Test Explorer)
--   If you're using Visual Studio on macOS, to run tests, select the GradeBookTests Project, then go to the Run menu, then click on Run Unit Tests (results will show up in the Unit Tests panel)
+-   If you're using Visual Studio on macOS, to run tests, select the WishListTests Project, then go to the Run menu, then click on Run Unit Tests (results will show up in the Unit Tests panel)
 
 (Note: All tests should fail at this point, this is by design. As you progress through the projects more and more tests will pass. All tests should pass upon completion of the project.)
 
