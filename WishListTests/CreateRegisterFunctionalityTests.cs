@@ -22,10 +22,7 @@ namespace WishListTests
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Models" + Path.DirectorySeparatorChar + "AccountViewModels" + Path.DirectorySeparatorChar + "RegisterViewModel.cs";
             Assert.True(File.Exists(filePath), @"`RegisterViewModel.cs` was not found in the `Models\AccountViewModels` folder.");
 
-            var registerViewModel = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Models.AccountViewModels.RegisterViewModel"
-                                     select type).FirstOrDefault();
+            var registerViewModel = TestHelpers.GetUserType("WishList.Models.AccountViewModels.RegisterViewModel");
             Assert.True(registerViewModel != null, "A `public` class `RegisterViewModel` was not found in the `WishList.Models.AccountViewModels` namespace.");
 
             var emailProperty = registerViewModel.GetProperty("Email");
@@ -112,10 +109,7 @@ namespace WishListTests
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
             Assert.True(File.Exists(filePath), @"`AccountController.cs` was not found in the `Controllers` folder.");
 
-            var accountController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Controllers.AccountController"
-                                     select type).FirstOrDefault();
+            var accountController = TestHelpers.GetUserType("WishList.Controllers.AccountController");
             Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
             var method = accountController.GetMethod("Register", new Type[] { });
             Assert.True(method != null, "`AccountController` did not contain a `public` `Register` method with no parameters");
@@ -140,16 +134,10 @@ namespace WishListTests
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
             Assert.True(File.Exists(filePath), @"`AccountController.cs` was not found in the `Controllers` folder.");
 
-            var accountController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Controllers.AccountController"
-                                     select type).FirstOrDefault();
+            var accountController = TestHelpers.GetUserType("WishList.Controllers.AccountController");
             Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
 
-            var registerViewModel = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Models.AccountViewModels.RegisterViewModel"
-                                     select type).FirstOrDefault();
+            var registerViewModel = TestHelpers.GetUserType("WishList.Models.AccountViewModels.RegisterViewModel");
             Assert.True(registerViewModel != null, "A `public` class `RegisterViewModel` was not found in the `WishList.Models.AccountViewModels` namespace.");
 
             var method = accountController.GetMethod("Register", new Type[] { registerViewModel });
@@ -179,16 +167,10 @@ namespace WishListTests
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
             Assert.True(File.Exists(filePath), @"`AccountController.cs` was not found in the `Controllers` folder.");
 
-            var accountController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Controllers.AccountController"
-                                     select type).FirstOrDefault();
+            var accountController = TestHelpers.GetUserType("WishList.Controllers.AccountController");
             Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
 
-            var registerViewModel = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Models.AccountViewModels.RegisterViewModel"
-                                     select type).FirstOrDefault();
+            var registerViewModel = TestHelpers.GetUserType("WishList.Models.AccountViewModels.RegisterViewModel");
             Assert.True(registerViewModel != null, "A `public` class `RegisterViewModel` was not found in the `WishList.Models.AccountViewModels` namespace.");
 
             var method = accountController.GetMethod("Register", new Type[] { registerViewModel });
@@ -233,16 +215,10 @@ namespace WishListTests
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
             Assert.True(File.Exists(filePath), @"`AccountController.cs` was not found in the `Controllers` folder.");
 
-            var accountController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Controllers.AccountController"
-                                     select type).FirstOrDefault();
+            var accountController = TestHelpers.GetUserType("WishList.Controllers.AccountController");
             Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
 
-            var registerViewModel = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Models.AccountViewModels.RegisterViewModel"
-                                     select type).FirstOrDefault();
+            var registerViewModel = TestHelpers.GetUserType("WishList.Models.AccountViewModels.RegisterViewModel");
             Assert.True(registerViewModel != null, "A `public` class `RegisterViewModel` was not found in the `WishList.Models.AccountViewModels` namespace.");
 
             var method = accountController.GetMethod("Register", new Type[] { registerViewModel });
@@ -295,16 +271,10 @@ namespace WishListTests
             var filePath = ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + ".." + Path.DirectorySeparatorChar + "WishList" + Path.DirectorySeparatorChar + "Controllers" + Path.DirectorySeparatorChar + "AccountController.cs";
             Assert.True(File.Exists(filePath), @"`AccountController.cs` was not found in the `Controllers` folder.");
 
-            var accountController = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Controllers.AccountController"
-                                     select type).FirstOrDefault();
+            var accountController = TestHelpers.GetUserType("WishList.Controllers.AccountController");
             Assert.True(accountController != null, "A `public` class `AccountController` was not found in the `WishList.Controllers` namespace.");
 
-            var registerViewModel = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                                     from type in assembly.GetTypes()
-                                     where type.FullName == "WishList.Models.AccountViewModels.RegisterViewModel"
-                                     select type).FirstOrDefault();
+            var registerViewModel = TestHelpers.GetUserType("WishList.Models.AccountViewModels.RegisterViewModel");
             Assert.True(registerViewModel != null, "A `public` class `RegisterViewModel` was not found in the `WishList.Models.AccountViewModels` namespace.");
 
             var method = accountController.GetMethod("Register", new Type[] { registerViewModel });
